@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ig0 main</title>
+    <style>
+        :root {
+            --bg-glass: rgba(255, 255, 255, 0.25);
+            --text: #000000;
+            --border: rgba(0, 0, 0, 0.08);
+            --secondary: #444444;
+            --overlay: rgba(0, 0, 0, 0.03);
+            --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
+
+        body, html {
+            margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #ffffff;
+        }
+
+        #kernel-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+            font-size: 11px; color: rgba(0, 0, 0, 0.5); line-height: 1.4; padding: 20px;
+            overflow: hidden; user-select: none; white-space: pre; background: #fff;
+        }
+
+        #glass-wrapper {
+            position: relative; z-index: 10; height: 100vh; width: 100vw; overflow-y: auto;
+            background: var(--bg-glass); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
+            display: flex; flex-direction: column;
+        }
+
+        nav { padding: 30px 60px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links button {
+            background: none; border: none; cursor: pointer; color: var(--text);
+            font-size: 12px; font-weight: 500; padding: 0; transition: opacity 0.2s ease;
+        }
+        .nav-links button:hover { opacity: 0.5; }
+
+        main { flex: 1; padding: 40px 60px; max-width: 500px; margin-right: auto; margin-left: 0; width: 100%; box-sizing: border-box; }
+        h1 { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: -2px; line-height: 1; }
+        p.description { font-size: 14px; color: var(--secondary); margin-bottom: 10px; line-height: 1.6; max-width: 400px; }
+        .shoutout { font-size: 13px; font-weight: 600; color: #000; margin-bottom: 60px; display: block; }
+
+        .directory-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #000; font-weight: 800; margin-bottom: 15px; display: block; opacity: 0.6; }
+        .app-list { display: flex; flex-direction: column; gap: 1px; background-color: var(--border); border: 0.5px solid var(--border); }
+        .app-card {
+            background-color: rgba(255, 255, 255, 0.4); padding: 20px; text-decoration: none; color: inherit;
+            display: flex; justify-content: space-between; align-items: center;
+            transition: all 0.4s var(--smooth-curve); cursor: pointer; border: none; text-align: left; width: 100%; font-family: inherit;
+        }
+        .app-card:hover { background-color: rgba(255, 255, 255, 0.8); padding-left: 24px; }
+        .app-info h3 { margin: 0; font-size: 13px; font-weight: 600; }
+        .app-info p { margin: 4px 0 0 0; font-size: 11px; color: #555; }
+
+        /* Smooth Popups */
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--overlay); backdrop-filter: blur(2px); z-index: 1000;
+            justify-content: center; align-items: center; opacity: 0;
+            transition: opacity 0.4s var(--smooth-curve);
+        }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal {
+            background: #fff; padding: 40px; border: 0.5px solid #000; width: 300px;
+            transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--smooth-curve);
+        }
+        .modal-overlay.active .modal { transform: scale(1) translateY(0); }
+
+        footer { padding: 60px; font-size: 10px; color: #000; font-weight: 500; margin-top: auto; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
+        
+        .modal h2 { font-size: 10px; font-weight: 700; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: 2px; }
+        .modal input { width: 100%; border: none; border-bottom: 0.5px solid #000; padding: 8px 0; margin-bottom: 30px; outline: none; background: transparent; }
+        .btn-black { background: #000; color: #fff; border: none; padding: 12px; font-size: 10px; font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <div id="kernel-bg"></div>
+
+    <div id="glass-wrapper">
+        <nav>
+            <div class="logo">ig0</div>
+            <div class="nav-links">
+                <button onclick="toggleSettings()">Settings</button>
+            </div>
+        </nav>
+
+        <main>
+            <h1>Hello!</h1>
+            <p class="description">This is the landing page for all ig0 apps and stuff. Here you can find project experiments.</p>
+            <span class="shoutout">Shout out to my homeslice on steam for helping me beat chamber 18 in portal 🔥</span>
+
+            <span class="directory-label">Directory</span>
+            
+            <div class="app-list">
+                <a href="ig0_chatv2.html" class="app-card">
+                    <div class="app-info">
+                        <h3>IGHT2 - A bit broken NOT DONE!</h3>
+                        <p>ig0 messaging platform. Minimalist UI & custom pixels.</p>
+                    </div>
+                </a>
+
+                <a href="bugger.html" class="app-card">
+                    <div class="app-info">
+                        <h3>bugger - FIXING IT</h3>
+                        <p>kind of extprint3r</p>
+                    </div>
+                </a>
+
+                <a href="halflife.html" class="app-card">
+                    <div class="app-info">
+                        <h3>Play Half-Life</h3>
+                        <p>Run GoldSrc in browser via Xash3D FWGS.</p>
+                    </div>
+                </a>
+
+                <button class="app-card" onclick="openProxyModal()">
+                    <div class="app-info">
+                        <h3>Cloudflare Proxy</h3>
+                        <p>Custom workers-based traffic routing.</p>
+                    </div>
+                </button>
+            </div>
+        </main>
+
+        <footer>ig0 stuffs.</footer>
+    </div>
+
+    <!-- Settings & Proxy Modals -->
+    <div class="modal-overlay" id="settings-modal" onclick="if(event.target==this) toggleSettings()">
+        <div class="modal">
+            <h2>Settings</h2>
+            <div class="setting-row">
+                <span>Proxy Engine</span>
+                <select id="engine-select">
+                    <option value="yogurt">Yo-Gurt</option>
+                    <option value="builtin">Mirror</option>
+                </select>
+            </div>
+            <button class="btn-black" onclick="toggleSettings()">Save</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="proxy-modal" onclick="if(event.target==this) closeProxyModal()">
+        <div class="modal">
+            <h2>Where to?</h2>
+            <input type="text" id="target-url" placeholder="Enter link..." onkeydown="if(event.key==='Enter') launchProxy()">
+            <button class="btn-black" onclick="launchProxy()">Launch</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleModal(id, show) {
+            const m = document.getElementById(id);
+            if (show) {
+                m.style.display = 'flex';
+                setTimeout(() => m.classList.add('active'), 10);
+            } else {
+                m.classList.remove('active');
+                setTimeout(() => m.style.display = 'none', 400);
+            }
+        }
+
+        function toggleSettings() { toggleModal('settings-modal', !document.getElementById('settings-modal').classList.contains('active')); }
+        function openProxyModal() { toggleModal('proxy-modal', true); document.getElementById('target-url').focus(); }
+        function closeProxyModal() { toggleModal('proxy-modal', false); }
+
+        const kernelLines = ["[ 0.000] Linux v6.1-ig0", "[ 0.005] pci 0000:00:00.0", "[ 0.412] ig0_neutralizer: init", "[ 0.912] hostname: ig0-sovereign", "[ 1.002] iBoss: intercepting...", "[ 1.124] workers: mounting...", "[ 1.556] yield to ig0_main", "[ 1.678] kernel: memory free"];
+        const bg = document.getElementById('kernel-bg');
+        let currentIdx = 0;
+        function addLine() {
+            const line = document.createElement('div');
+            line.textContent = kernelLines[currentIdx % kernelLines.length];
+            bg.appendChild(line);
+            if (bg.childNodes.length > 80) bg.removeChild(bg.firstChild);
+            currentIdx++;
+            bg.scrollTop = bg.scrollHeight;
+            setTimeout(addLine, Math.random() * 200 + 50);
+        }
+        addLine();
+
+        function launchProxy() {
+            let t = document.getElementById('target-url').value;
+            if (!t) return;
+            if (!t.startsWith('http')) t = 'https://' + t;
+            window.location.href = `https://yo-gurt.uareawesomesauce.workers.dev/?target=${encodeURIComponent(t)}`;
+        }
+    </script>
+</body>
+</html>
