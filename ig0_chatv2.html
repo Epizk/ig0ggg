@@ -3,47 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ight2 | Liquid Glass</title>
+    <title>ight2 | Liquid</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        /* --- 1. CONFIG & VARIABLES --- */
+        /* --- CORE VARIABLES --- */
         :root {
-            /* Colors */
-            --bg: #000000;
-            --glass: rgba(20, 20, 20, 0.65);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --bg-color: #050505;
+            --glass-panel: rgba(20, 20, 20, 0.75);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.1);
             --glass-highlight: rgba(255, 255, 255, 0.15);
             
             --accent: #ff0055;
             --accent-grad: linear-gradient(135deg, #ff0055, #ff00cc);
+            
             --text-main: #ffffff;
             --text-dim: #888888;
             
-            /* Sizing */
-            --radius: 18px;
-            --sidebar-w: 260px;
-            
-            /* Animations */
-            --ease: cubic-bezier(0.23, 1, 0.32, 1);
+            --radius: 20px;
+            --font: 'Outfit', sans-serif;
         }
 
-        /* Scrollbar Styling */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
-
+        /* --- GLOBAL RESET --- */
         * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
         
         body {
-            margin: 0; background: var(--bg);
-            color: var(--text-main); font-family: 'Outfit', sans-serif;
+            margin: 0; background: var(--bg-color);
+            color: var(--text-main); font-family: var(--font);
             height: 100vh; overflow: hidden; display: flex;
             font-size: 15px;
         }
 
-        /* --- 2. LIQUID BACKGROUND --- */
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+        /* --- LIQUID BACKGROUND --- */
         .liquid-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; overflow: hidden; pointer-events: none;
@@ -53,169 +50,186 @@
 
         .blob {
             position: absolute; border-radius: 50%;
-            filter: blur(80px); opacity: 0.6;
+            filter: blur(90px); opacity: 0.5;
             animation: float 10s infinite alternate ease-in-out;
         }
         .b1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: #ff00cc; animation-duration: 25s; }
         .b2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: #00ccff; animation-duration: 30s; }
-        .b3 { top: 40%; left: 40%; width: 30vw; height: 30vw; background: #6600ff; animation-duration: 20s; }
 
-        @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(30px, -30px); } }
+        @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(40px, -40px); } }
 
-        /* --- 3. LAYOUT --- */
-        .app {
+        /* --- APP LAYOUT --- */
+        .app-container {
             display: flex; width: 100%; height: 100%;
-            padding: 15px; gap: 15px; max-width: 1800px; margin: 0 auto;
+            padding: 15px; gap: 15px; max-width: 1600px; margin: 0 auto;
         }
 
-        /* Glass Panels */
         .panel {
-            background: var(--glass);
-            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            background: var(--glass-panel);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: var(--glass-border);
             border-radius: var(--radius);
             display: flex; flex-direction: column;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-            transition: 0.3s var(--ease);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.4);
+            overflow: hidden;
         }
 
         /* SIDEBAR */
-        .sidebar { width: var(--sidebar-w); flex-shrink: 0; padding: 20px; }
-        .logo { font-size: 24px; font-weight: 800; letter-spacing: -1px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
-        .logo span { background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar { width: 280px; flex-shrink: 0; padding: 20px; display: flex; flex-direction: column; }
         
-        .nav-title { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; font-weight: 700; letter-spacing: 1px; }
-        .nav-list { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; }
-        
-        .nav-item {
-            padding: 10px 12px; border-radius: 10px; cursor: pointer;
-            transition: 0.2s; color: #ccc; display: flex; align-items: center; gap: 8px;
+        .app-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px;
         }
-        .nav-item:hover { background: var(--glass-highlight); color: white; }
-        .nav-item.active { background: var(--accent-grad); color: white; box-shadow: 0 4px 15px rgba(255,0,85,0.4); }
+        .logo-text { font-size: 26px; font-weight: 800; letter-spacing: -1px; background: var(--accent-grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        /* Settings Icon Fixed */
+        .icon-btn {
+            width: 36px; height: 36px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s; background: rgba(255,255,255,0.05);
+            color: #fff;
+        }
+        .icon-btn:hover { background: var(--accent); color: white; transform: rotate(90deg); }
+        .icon-svg { width: 20px; height: 20px; fill: currentColor; }
 
-        .my-profile {
-            margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.3);
-            border-radius: 12px; display: flex; align-items: center; gap: 10px; cursor: pointer;
-            border: 1px solid transparent; transition: 0.2s;
+        .nav-section { flex-grow: 1; overflow-y: auto; }
+        .section-title { font-size: 11px; text-transform: uppercase; color: var(--text-dim); margin: 15px 0 8px 0; font-weight: 700; letter-spacing: 1px; }
+
+        .room-item {
+            padding: 12px; border-radius: 12px; cursor: pointer;
+            transition: 0.2s; color: #ccc; font-weight: 500; display: flex; align-items: center; gap: 10px;
         }
-        .my-profile:hover { border-color: var(--accent); background: rgba(0,0,0,0.5); }
-        .avatar { width: 36px; height: 36px; border-radius: 8px; background: #222; object-fit: cover; border: 1px solid rgba(255,255,255,0.1); }
+        .room-item:hover { background: var(--glass-highlight); color: white; }
+        .room-item.active { background: var(--accent-grad); color: white; box-shadow: 0 5px 15px rgba(255,0,85,0.3); }
+
+        .user-mini-card {
+            margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.4);
+            border-radius: 14px; display: flex; align-items: center; gap: 12px;
+        }
+        .user-avatar-sm { width: 40px; height: 40px; border-radius: 10px; background: #222; object-fit: cover; }
 
         /* CHAT AREA */
-        .chat-main { flex-grow: 1; min-width: 0; position: relative; }
-        
+        .chat-area { flex-grow: 1; min-width: 0; position: relative; }
         .chat-header {
-            height: 60px; border-bottom: var(--glass-border);
+            height: 64px; border-bottom: var(--glass-border);
             display: flex; align-items: center; justify-content: space-between;
-            padding: 0 20px; font-weight: 700; font-size: 18px;
-        }
-        
-        .messages {
-            flex-grow: 1; overflow-y: scroll; padding: 20px;
-            display: flex; flex-direction: column; gap: 8px;
+            padding: 0 25px; font-weight: 700; font-size: 18px;
         }
 
-        /* Message Bubbles */
-        .msg { display: flex; align-items: flex-end; gap: 10px; opacity: 0; animation: fadeUp 0.3s forwards; }
-        .msg.me { flex-direction: row-reverse; }
-        
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .messages-list {
+            flex-grow: 1; overflow-y: scroll; padding: 25px;
+            display: flex; flex-direction: column; gap: 12px;
+            scroll-behavior: smooth;
+        }
 
+        /* FIXED MESSAGES formatting */
+        .msg-row { display: flex; align-items: flex-end; gap: 12px; }
+        .msg-row.me { flex-direction: row-reverse; }
+        
         .bubble {
-            max-width: 70%; padding: 10px 16px; border-radius: 18px;
-            font-size: 15px; line-height: 1.5; word-wrap: break-word;
-            position: relative;
+            max-width: 75%; padding: 12px 18px; border-radius: 20px;
+            font-size: 15px; line-height: 1.5;
+            
+            /* The Fix for formatting: */
+            white-space: pre-wrap; 
+            word-break: break-word;
+            overflow-wrap: break-word;
         }
-        .msg.other .bubble { background: rgba(255,255,255,0.07); border-bottom-left-radius: 4px; }
-        .msg.me .bubble { background: var(--accent-grad); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(255,0,85,0.2); }
         
-        .msg-info { font-size: 11px; color: var(--text-dim); margin-bottom: 2px; margin-left: 2px; }
-        .msg.me .msg-info { text-align: right; margin-right: 2px; }
-
-        /* Input Area */
-        .input-area { padding: 20px; border-top: var(--glass-border); }
-        .input-bar {
-            background: rgba(0,0,0,0.3); border-radius: 50px;
-            display: flex; align-items: center; padding: 5px 5px 5px 20px;
-            border: 1px solid rgba(255,255,255,0.1); transition: 0.3s;
-        }
-        .input-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
+        .msg-row.other .bubble { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; color: var(--text-main); }
+        .msg-row.me .bubble { background: var(--accent-grad); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(255,0,85,0.2); }
         
-        input { flex-grow: 1; background: transparent; border: none; color: white; padding: 10px 0; font-size: 16px; font-family: inherit; }
+        .msg-name { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; margin-left: 2px; }
+        .msg-row.me .msg-name { display: none; }
+
+        /* INPUT */
+        .input-wrapper { padding: 20px; border-top: var(--glass-border); display: flex; gap: 10px; }
+        .input-field {
+            flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 50px; padding: 12px 20px; color: white; font-family: inherit; font-size: 15px;
+            transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
         
-        .send-btn {
-            width: 42px; height: 42px; background: var(--accent); border-radius: 50%;
-            border: none; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: 0.2s;
+        .btn-send {
+            width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
+            border: none; color: white; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; transition: 0.2s;
         }
-        .send-btn:hover { transform: scale(1.1); background: white; color: var(--accent); }
+        .btn-send:hover { transform: scale(1.1); }
 
-        /* RIGHT PANEL */
-        .right-panel { width: 220px; flex-shrink: 0; padding: 20px; }
-        .online-user {
-            display: flex; align-items: center; gap: 10px; padding: 8px;
-            border-radius: 8px; cursor: pointer; transition: 0.2s; color: #ddd;
+        /* ONLINE LIST */
+        .online-panel { width: 240px; flex-shrink: 0; padding: 20px; }
+        .online-item {
+            display: flex; align-items: center; gap: 10px; padding: 8px; border-radius: 8px;
+            cursor: pointer; transition: 0.2s;
         }
-        .online-user:hover { background: var(--glass-highlight); color: white; }
-        .dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 8px #00ff88; }
+        .online-item:hover { background: var(--glass-highlight); }
+        .status-dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 5px #00ff88; }
 
-        /* --- 4. CUSTOM MODALS (No Alerts) --- */
+        /* --- UNIFIED SETTINGS MODAL --- */
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); backdrop-filter: blur(10px);
-            z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            z-index: 999; display: none; align-items: center; justify-content: center;
+            opacity: 0; transition: opacity 0.3s;
         }
-        .overlay.active { opacity: 1; pointer-events: all; }
+        .overlay.active { display: flex; opacity: 1; }
 
-        .modal {
-            background: #111; border: 1px solid #333; padding: 30px;
-            border-radius: 24px; width: 400px; max-width: 90%;
-            transform: scale(0.9); transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        .settings-card {
+            background: #111; border: 1px solid #333; width: 450px; max-width: 90%;
+            border-radius: 24px; overflow: hidden; display: flex; flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+            max-height: 85vh;
         }
-        .overlay.active .modal { transform: scale(1); }
+        
+        /* Modal Header */
+        .modal-header { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .modal-title { font-size: 20px; font-weight: 700; color: white; }
+        .close-btn { cursor: pointer; color: #666; font-size: 24px; transition: 0.2s; }
+        .close-btn:hover { color: white; }
 
-        .modal h2 { margin: 0 0 20px 0; font-weight: 800; font-size: 24px; color: white; }
-        .field-label { display: block; color: #888; font-size: 12px; margin-bottom: 8px; text-transform: uppercase; font-weight: 700; }
-        .modal-input {
-            width: 100%; background: #222; border: 1px solid #444; color: white;
-            padding: 12px; border-radius: 10px; margin-bottom: 20px;
-            font-size: 16px; font-family: inherit; transition: 0.2s;
+        /* Modal Tabs */
+        .modal-tabs { display: flex; background: #080808; padding: 5px; }
+        .tab-btn {
+            flex: 1; padding: 12px; background: transparent; border: none; color: #666;
+            font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s;
         }
-        .modal-input:focus { border-color: var(--accent); }
+        .tab-btn.active { color: white; border-bottom-color: var(--accent); background: rgba(255,255,255,0.03); }
 
-        .modal-btn {
-            width: 100%; padding: 14px; background: var(--accent); border: none;
-            color: white; border-radius: 12px; font-weight: 700; font-size: 16px; cursor: pointer;
-            transition: 0.2s; margin-top: 10px;
-        }
-        .modal-btn:hover { opacity: 0.9; transform: translateY(-2px); }
-        .modal-close { margin-top: 15px; text-align: center; color: #666; font-size: 13px; cursor: pointer; text-decoration: underline; }
+        /* Modal Body */
+        .modal-body { padding: 25px; overflow-y: auto; }
+        .setting-group { display: none; } /* Hidden by default */
+        .setting-group.active { display: block; animation: fadeIn 0.3s; }
 
-        /* Theme Grid */
-        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .theme-opt { height: 50px; border-radius: 12px; cursor: pointer; position: relative; overflow: hidden; border: 2px solid transparent; transition: 0.2s; }
-        .theme-opt.selected { border-color: white; transform: scale(1.05); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* SVG Icons */
-        .icon { width: 20px; height: 20px; fill: currentColor; }
-        .icon-btn { padding: 8px; border-radius: 50%; cursor: pointer; transition: 0.2s; display: flex; }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); }
-
-        /* PFP Canvas */
-        .canvas-wrap { display: flex; justify-content: center; margin: 20px 0; }
+        /* Canvas & Inputs */
+        .canvas-container { display: flex; justify-content: center; margin-bottom: 15px; }
         canvas { border: 2px solid #333; border-radius: 8px; cursor: crosshair; image-rendering: pixelated; }
-        .colors { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; }
-        .p-col { width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); transition: 0.2s; }
-        .p-col.active { transform: scale(1.2); border: 2px solid white; box-shadow: 0 0 10px currentColor; }
+        
+        .color-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;}
+        .p-color { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; border: 1px solid #444; }
+        .p-color.selected { border-color: white; transform: scale(1.15); box-shadow: 0 0 10px white; }
+
+        .form-label { display: block; color: #888; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
+        .form-input { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+
+        .btn-primary { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer; }
+        .btn-primary:hover { filter: brightness(1.1); }
+
+        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .theme-box { height: 45px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; }
+        .theme-box.active { border-color: white; transform: scale(1.05); }
 
         /* Mobile */
         @media (max-width: 850px) {
-            .sidebar, .right-panel { display: none; } /* Simplified for this demo */
-            .app { padding: 0; }
+            .sidebar, .online-panel { display: none; } 
+            .app-container { padding: 0; }
             .panel { border-radius: 0; border: none; }
+            .chat-header { padding: 0 15px; }
+            /* Add a menu button for mobile in a real app, omitted for simplicity of single file */
         }
     </style>
 </head>
@@ -224,374 +238,413 @@
     <div class="liquid-layer" id="liquid-bg">
         <div class="blob b1"></div>
         <div class="blob b2"></div>
-        <div class="blob b3"></div>
     </div>
 
-    <div class="app">
+    <div class="app-container">
         <div class="panel sidebar">
-            <div class="logo">
-                <span>ight2</span>
-                <div class="icon-btn" onclick="openModal('settings-modal')">
-                    <svg class="icon" viewBox="0 0 24 24"><path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm0 6a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0-12a10 10 0 1 1 0 20 10 10 0 0 1 0-20zm0 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16z"/></svg>
+            <div class="app-header">
+                <div class="logo-text">ight2</div>
+                <div class="icon-btn" onclick="openSettings()">
+                    <svg class="icon-svg" viewBox="0 0 24 24">
+                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.04.17 0 .34.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.04-.22 0-.45-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                    </svg>
                 </div>
             </div>
 
-            <div class="nav-title">Rooms</div>
-            <div class="nav-list">
-                <div class="nav-item active" onclick="changeRoom('public', '#public')">
-                    <span>#</span> public
+            <div class="section-title">Rooms</div>
+            <div class="nav-section">
+                <div class="room-item active" onclick="switchRoom('public', '#public')">
+                    <span># public</span>
                 </div>
-                <div class="nav-title" style="margin-top:20px;">Direct Messages</div>
-                <div id="dm-list" style="display:flex; flex-direction:column; gap:4px"></div>
+                <div class="section-title" style="margin-top:20px;">Direct Messages</div>
+                <div id="dm-list" style="display:flex; flex-direction:column; gap:5px;"></div>
             </div>
 
-            <div class="my-profile" onclick="openModal('pfp-modal')">
-                <img id="current-pfp" class="avatar" src="">
-                <div style="overflow:hidden;">
-                    <div id="current-username" style="font-weight:700; font-size:14px; white-space:nowrap;">Loading...</div>
-                    <div style="font-size:11px; color:var(--text-dim)">Edit Profile</div>
+            <div class="user-mini-card">
+                <img id="my-avatar" class="user-avatar-sm" src="" onerror="this.src='https://ui-avatars.com/api/?name=User&background=333&color=fff'">
+                <div style="flex-grow:1; overflow:hidden;">
+                    <div id="my-name" style="font-weight:700; font-size:14px;">Loading...</div>
+                    <div style="font-size:11px; color:#888;">Online</div>
                 </div>
             </div>
         </div>
 
-        <div class="panel chat-main">
+        <div class="panel chat-area">
             <div class="chat-header">
                 <span id="header-title">#public</span>
-                <span id="header-online" style="font-size:12px; color:var(--accent)">0 online</span>
+                <span id="online-count" style="font-size:12px; color:var(--accent);">0 online</span>
             </div>
 
-            <div class="messages" id="msgs"></div>
+            <div class="messages-list" id="msg-container">
+                </div>
 
-            <div class="input-area">
-                <div class="input-bar">
-                    <input type="text" id="msg-input" placeholder="Type a message..." autocomplete="off">
-                    <button class="send-btn" id="send-btn">
-                        <svg class="icon" style="transform:translateX(2px)" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                    </button>
+            <div class="input-wrapper">
+                <input type="text" id="msg-input" class="input-field" placeholder="Type a message..." autocomplete="off">
+                <button class="btn-send" id="btn-send">
+                    <svg style="width:20px;height:20px;fill:currentColor;transform:translateX(2px)" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="panel online-panel">
+            <div class="section-title">Online Now</div>
+            <div id="online-list" style="display:flex; flex-direction:column; gap:5px;"></div>
+        </div>
+    </div>
+
+    <div class="overlay" id="main-modal">
+        <div class="settings-card">
+            <div class="modal-header">
+                <div class="modal-title">Settings</div>
+                <div class="close-btn" onclick="closeSettings()">&times;</div>
+            </div>
+            
+            <div class="modal-tabs">
+                <button class="tab-btn active" onclick="switchTab('tab-profile')">Profile</button>
+                <button class="tab-btn" onclick="switchTab('tab-appearance')">Appearance</button>
+            </div>
+
+            <div class="modal-body">
+                <div id="tab-profile" class="setting-group active">
+                    <div class="form-label">Display Name</div>
+                    <input type="text" id="set-username" class="form-input" placeholder="Your username">
+                    
+                    <div class="form-label" style="margin-bottom:10px;">Draw Avatar (32x32)</div>
+                    <div class="canvas-container">
+                        <canvas id="pfp-canvas" width="320" height="320"></canvas>
+                    </div>
+                    <div class="color-row" id="palette"></div>
+                    
+                    <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
+                </div>
+
+                <div id="tab-appearance" class="setting-group">
+                    <div class="form-label">Color Theme</div>
+                    <div class="theme-grid" id="theme-options">
+                        </div>
+
+                    <div class="form-label" style="margin-top:20px;">Visual Effects</div>
+                    <div class="room-item" style="background:#222; justify-content:space-between;" onclick="toggleLiquid()">
+                        <span>Liquid Background</span>
+                        <span id="liquid-status" style="color:var(--accent); font-weight:700;">ON</span>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <div class="panel right-panel">
-            <div class="nav-title">Online Now</div>
-            <div id="online-list" style="margin-top:10px; display:flex; flex-direction:column; gap:2px"></div>
-        </div>
     </div>
 
-    <div class="overlay" id="settings-modal">
-        <div class="modal">
-            <h2>Settings</h2>
-            
-            <div class="field-label">Display Name</div>
-            <input type="text" class="modal-input" id="set-username" placeholder="Enter username">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-            <div class="field-label">Liquid Background</div>
-            <div class="nav-item" onclick="toggleLiquid()" style="background:#222; margin-bottom:20px; justify-content:space-between;">
-                <span>Show Liquid Animations</span>
-                <div id="liquid-toggle-status" style="color:var(--accent); font-weight:bold;">ON</div>
-            </div>
+        // CONFIG
+        const firebaseConfig = {
+            apiKey: "AIzaSyDE4Q6lP4EMxEnjDbM9M-RsV7P4E7Ihl_U",
+            authDomain: "chatdata-99b18.firebaseapp.com",
+            projectId: "chatdata-99b18",
+            storageBucket: "chatdata-99b18.firebasestorage.app",
+            messagingSenderId: "64431655608",
+            appId: "1:64431655608:web:d056deb328eb749b41824d"
+        };
 
-            <div class="field-label">Color Theme</div>
-            <div class="theme-grid" id="theme-grid"></div>
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
 
-            <button class="modal-btn" onclick="saveSettings()">Save Changes</button>
-            <div class="modal-close" onclick="closeModals()">Cancel</div>
-        </div>
-    </div>
+        // STATE
+        let currentUser = null;
+        let currentRoom = 'public';
+        let msgUnsub = null;
 
-    <div class="overlay" id="pfp-modal">
-        <div class="modal">
-            <h2>Draw Avatar</h2>
-            <div class="canvas-wrap"><canvas id="can" width="320" height="320"></canvas></div>
-            <div class="colors" id="pal"></div>
-            <button class="modal-btn" onclick="savePfp()">Save Avatar</button>
-            <div class="modal-close" onclick="closeModals()">Cancel</div>
-        </div>
-    </div>
+        // DOM ELEMENTS
+        const msgContainer = document.getElementById('msg-container');
+        const msgInput = document.getElementById('msg-input');
+        const sendBtn = document.getElementById('btn-send');
 
-<script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-    import { getAuth, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-    import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        // --- AUTHENTICATION ---
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                if(!user.displayName) updateProfile(user, { displayName: `User${user.uid.slice(0,4)}` });
+                updateMyUI();
+                startApp();
+            } else {
+                signInAnonymously(auth);
+            }
+        });
 
-    const firebaseConfig = {
-        apiKey: "AIzaSyDE4Q6lP4EMxEnjDbM9M-RsV7P4E7Ihl_U",
-        authDomain: "chatdata-99b18.firebaseapp.com",
-        projectId: "chatdata-99b18",
-        storageBucket: "chatdata-99b18.firebasestorage.app",
-        messagingSenderId: "64431655608",
-        appId: "1:64431655608:web:d056deb328eb749b41824d",
-        measurementId: "G-ELQW99ZV77"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    let user = null;
-    let roomId = 'public';
-    let unsub = null;
-
-    // --- DOM ---
-    const msgsDiv = document.getElementById('msgs');
-    const input = document.getElementById('msg-input');
-
-    // --- AUTH ---
-    onAuthStateChanged(auth, (u) => {
-        if(u) {
-            user = u;
-            if(!user.displayName) updateProfile(user, { displayName: `User${user.uid.slice(0,4)}` });
-            renderSelf();
-            initApp();
-        } else {
-            signInAnonymously(auth);
+        function updateMyUI() {
+            document.getElementById('my-name').innerText = currentUser.displayName;
+            // FIXED AVATAR: Use fallback function
+            document.getElementById('my-avatar').src = getValidAvatar(currentUser.photoURL, currentUser.displayName);
         }
-    });
 
-    function initApp() {
-        loadMsgs();
-        heartbeat();
-        loadOnline();
-    }
+        // --- CORE APP ---
+        function startApp() {
+            loadMessages();
+            loadOnlineUsers();
+            updatePresence();
+            setInterval(updatePresence, 60000); // Heartbeat
+        }
 
-    // --- MESSAGING ---
-    function loadMsgs() {
-        if(unsub) unsub();
-        msgsDiv.innerHTML = ''; 
-
-        const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(60));
-        
-        unsub = onSnapshot(q, (snap) => {
-            const data = [];
-            snap.forEach(d => data.push(d.data()));
-            data.reverse(); // Order old -> new
-
-            // Smart Render: Only clear if drastic change, otherwise we should append. 
-            // For simplicity in this demo, we re-render but maintain scroll position if reading history.
+        // --- MESSAGING ---
+        function loadMessages() {
+            if(msgUnsub) msgUnsub();
+            msgContainer.innerHTML = '';
             
-            const wasAtBottom = (msgsDiv.scrollTop + msgsDiv.clientHeight) >= (msgsDiv.scrollHeight - 100);
+            const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
             
-            msgsDiv.innerHTML = '';
-            
-            data.forEach(msg => {
-                if(msg.roomId === roomId || (!msg.roomId && roomId === 'public')) {
-                    appendMsg(msg);
+            msgUnsub = onSnapshot(q, (snapshot) => {
+                const msgs = [];
+                snapshot.forEach(doc => msgs.push(doc.data()));
+                msgs.reverse();
+                
+                // Smart scroll: Check if we are near bottom before updating
+                const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 100;
+
+                msgContainer.innerHTML = ''; // Rebuild list (simplest for avoiding dupes in this demo)
+                
+                msgs.forEach(msg => {
+                    if(msg.roomId === currentRoom || (!msg.roomId && currentRoom === 'public')) {
+                        renderMessage(msg);
+                    }
+                });
+
+                if(isNearBottom || snapshot.metadata.hasPendingWrites) {
+                    msgContainer.scrollTop = msgContainer.scrollHeight;
                 }
             });
-
-            // Scroll Logic
-            if(wasAtBottom) msgsDiv.scrollTop = msgsDiv.scrollHeight;
-        });
-    }
-
-    async function send() {
-        const txt = input.value.trim();
-        if(!txt || !user) return;
-        input.value = '';
-        
-        // Optimistic UI: scroll to bottom immediately
-        msgsDiv.scrollTop = msgsDiv.scrollHeight;
-
-        try {
-            await addDoc(collection(db, "messages"), {
-                text: txt, uid: user.uid, displayName: user.displayName,
-                photoURL: user.photoURL, roomId: roomId, createdAt: serverTimestamp()
-            });
-        } catch(e) { console.error(e); }
-    }
-
-    input.addEventListener('keydown', e => { if(e.key === 'Enter') send(); });
-    document.getElementById('send-btn').onclick = send;
-
-    function appendMsg(msg) {
-        const isMe = msg.uid === user.uid;
-        const div = document.createElement('div');
-        div.className = `msg ${isMe ? 'me' : 'other'}`;
-        
-        const pfp = msg.photoURL || `https://ui-avatars.com/api/?name=${msg.uid}&background=333&color=fff`;
-        
-        div.innerHTML = `
-            ${!isMe ? `<img src="${pfp}" class="avatar" style="width:28px;height:28px">` : ''}
-            <div>
-                <div class="msg-info">${isMe ? '' : msg.displayName}</div>
-                <div class="bubble">${esc(msg.text)}</div>
-            </div>
-        `;
-        msgsDiv.appendChild(div);
-    }
-
-    // --- ROOMS & DMS ---
-    window.changeRoom = (id, title) => {
-        roomId = id;
-        document.getElementById('header-title').innerText = title;
-        document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-        // If clicking public
-        if(id === 'public') document.querySelector('.nav-item').classList.add('active');
-        loadMsgs();
-    };
-
-    window.startDm = (uid, name) => {
-        const ids = [user.uid, uid].sort().join('_');
-        const dmId = `dm_${ids}`;
-        const list = document.getElementById('dm-list');
-        
-        // check duplicate
-        if(!document.getElementById(`nav-${dmId}`)) {
-            const el = document.createElement('div');
-            el.className = 'nav-item';
-            el.id = `nav-${dmId}`;
-            el.innerHTML = `<span style="color:var(--accent)">@</span> ${name}`;
-            el.onclick = () => {
-                document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-                el.classList.add('active');
-                window.changeRoom(dmId, `@ ${name}`);
-            };
-            list.appendChild(el);
         }
-        // trigger click
-        document.getElementById(`nav-${dmId}`).click();
-    }
 
-    // --- PRESENCE ---
-    function heartbeat() {
-        const tick = () => {
-            setDoc(doc(db, "users", user.uid), {
-                uid: user.uid, displayName: user.displayName, 
-                photoURL: user.photoURL || null, lastSeen: serverTimestamp()
+        async function sendMessage() {
+            const text = msgInput.value.trim();
+            if(!text || !currentUser) return;
+            
+            msgInput.value = '';
+            // Optimistic scroll
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+
+            try {
+                await addDoc(collection(db, "messages"), {
+                    text: text,
+                    uid: currentUser.uid,
+                    displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL || null,
+                    roomId: currentRoom,
+                    createdAt: serverTimestamp()
+                });
+            } catch(e) { console.error(e); }
+        }
+
+        sendBtn.onclick = sendMessage;
+        msgInput.addEventListener('keydown', (e) => { if(e.key === 'Enter') sendMessage(); });
+
+        function renderMessage(msg) {
+            const isMe = msg.uid === currentUser.uid;
+            const div = document.createElement('div');
+            div.className = `msg-row ${isMe ? 'me' : 'other'}`;
+            
+            const avatarSrc = getValidAvatar(msg.photoURL, msg.displayName);
+            
+            div.innerHTML = `
+                ${!isMe ? `<img src="${avatarSrc}" class="user-avatar-sm" style="width:28px;height:28px;">` : ''}
+                <div>
+                    ${!isMe ? `<div class="msg-name">${escapeHtml(msg.displayName)}</div>` : ''}
+                    <div class="bubble">${escapeHtml(msg.text)}</div>
+                </div>
+            `;
+            msgContainer.appendChild(div);
+        }
+
+        // --- ROOMS & DMs ---
+        window.switchRoom = (id, name) => {
+            currentRoom = id;
+            document.getElementById('header-title').innerText = name;
+            
+            // UI Toggle
+            document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+            // Note: Simple highlighting for public, complex needed for DMs in full app
+            if(id === 'public') document.querySelector('.room-item').classList.add('active');
+            
+            loadMessages();
+        }
+
+        window.startDm = (uid, name) => {
+            const ids = [currentUser.uid, uid].sort().join('_');
+            const dmId = `dm_${ids}`;
+            
+            // Add to sidebar if not exists
+            const list = document.getElementById('dm-list');
+            if(!document.getElementById(`nav-${dmId}`)) {
+                const el = document.createElement('div');
+                el.className = 'room-item';
+                el.id = `nav-${dmId}`;
+                el.innerHTML = `<span style="color:var(--accent)">@</span> ${escapeHtml(name)}`;
+                el.onclick = () => {
+                    document.querySelectorAll('.room-item').forEach(x => x.classList.remove('active'));
+                    el.classList.add('active');
+                    switchRoom(dmId, `@ ${name}`);
+                }
+                list.appendChild(el);
+            }
+            document.getElementById(`nav-${dmId}`).click();
+        }
+
+        // --- PRESENCE ---
+        function updatePresence() {
+            setDoc(doc(db, "users", currentUser.uid), {
+                uid: currentUser.uid,
+                displayName: currentUser.displayName,
+                photoURL: currentUser.photoURL || null,
+                lastSeen: serverTimestamp()
             }, { merge: true });
-        };
-        tick(); setInterval(tick, 60000);
-    }
+        }
 
-    function loadOnline() {
-        const q = query(collection(db, "users"), orderBy("lastSeen", "desc"), limit(20));
-        onSnapshot(q, (snap) => {
-            const list = document.getElementById('online-list');
-            list.innerHTML = '';
-            let count = 0;
-            snap.forEach(d => {
-                const u = d.data();
-                // Simple client-side timeout check (5 mins)
-                const diff = (new Date() - (u.lastSeen?.toDate() || new Date())) / 1000 / 60;
-                if(diff < 5 && u.uid !== user.uid) {
-                    count++;
-                    const el = document.createElement('div');
-                    el.className = 'online-user';
-                    el.innerHTML = `
-                        <img src="${u.photoURL || `https://ui-avatars.com/api/?name=${u.uid}&background=333&color=fff`}" style="width:24px;height:24px;border-radius:8px">
-                        <span style="flex-grow:1; font-size:13px">${esc(u.displayName)}</span>
-                        <div class="dot"></div>
-                    `;
-                    el.onclick = () => window.startDm(u.uid, u.displayName);
-                    list.appendChild(el);
-                }
+        function loadOnlineUsers() {
+            const q = query(collection(db, "users"), orderBy("lastSeen", "desc"), limit(20));
+            onSnapshot(q, (snap) => {
+                const list = document.getElementById('online-list');
+                list.innerHTML = '';
+                let count = 0;
+                
+                snap.forEach(d => {
+                    const u = d.data();
+                    // 5 min timeout check
+                    const now = new Date();
+                    const seen = u.lastSeen ? u.lastSeen.toDate() : new Date(0);
+                    if((now - seen)/1000/60 < 5 && u.uid !== currentUser.uid) {
+                        count++;
+                        const el = document.createElement('div');
+                        el.className = 'online-item';
+                        el.innerHTML = `
+                            <img src="${getValidAvatar(u.photoURL, u.displayName)}" style="width:24px;height:24px;border-radius:6px;">
+                            <span style="font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHtml(u.displayName)}</span>
+                            <div style="flex-grow:1"></div>
+                            <div class="status-dot"></div>
+                        `;
+                        el.onclick = () => startDm(u.uid, u.displayName);
+                        list.appendChild(el);
+                    }
+                });
+                document.getElementById('online-count').innerText = `${count + 1} online`;
             });
-            document.getElementById('header-online').innerText = `${count + 1} online`;
+        }
+
+        // --- SETTINGS MODAL LOGIC ---
+        window.openSettings = () => {
+            document.getElementById('main-modal').classList.add('active');
+            document.getElementById('set-username').value = currentUser.displayName;
+            // Clear canvas to black
+            ctx.fillStyle = "#000"; ctx.fillRect(0,0,320,320);
+        }
+        
+        window.closeSettings = () => {
+            document.getElementById('main-modal').classList.remove('active');
+        }
+
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.setting-group').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            // Find button that triggered? Simple find by text for now or just:
+            const index = tabId === 'tab-profile' ? 0 : 1;
+            document.querySelectorAll('.tab-btn')[index].classList.add('active');
+        }
+
+        // --- CANVAS LOGIC ---
+        const cvs = document.getElementById('pfp-canvas');
+        const ctx = cvs.getContext('2d');
+        const SCALE = 10;
+        let paint = false;
+        let color = '#ff0055';
+
+        const palette = ['#000', '#fff', '#ff0055', '#00ccff', '#00ff88', '#ffaa00', '#555'];
+        const pDiv = document.getElementById('palette');
+        palette.forEach(c => {
+            const d = document.createElement('div');
+            d.className = 'p-color';
+            d.style.background = c;
+            d.onclick = () => {
+                color = c;
+                document.querySelectorAll('.p-color').forEach(x => x.classList.remove('selected'));
+                d.classList.add('selected');
+            }
+            pDiv.appendChild(d);
         });
-    }
 
-    // --- MODALS & SETTINGS ---
-    window.openModal = (id) => {
-        document.getElementById(id).classList.add('active');
-        if(id === 'settings-modal') document.getElementById('set-username').value = user.displayName;
-    };
-    window.closeModals = () => document.querySelectorAll('.overlay').forEach(e => e.classList.remove('active'));
-
-    window.saveSettings = async () => {
-        const name = document.getElementById('set-username').value;
-        if(name && name !== user.displayName) {
-            await updateProfile(user, { displayName: name });
-            renderSelf();
+        function draw(x, y) {
+            ctx.fillStyle = color;
+            ctx.fillRect(Math.floor(x/SCALE)*SCALE, Math.floor(y/SCALE)*SCALE, SCALE, SCALE);
         }
-        window.closeModals();
-    };
 
-    // --- LIQUID TOGGLE ---
-    let liquidOn = true;
-    window.toggleLiquid = () => {
-        liquidOn = !liquidOn;
-        const bg = document.getElementById('liquid-bg');
-        const stat = document.getElementById('liquid-toggle-status');
-        if(liquidOn) {
-            bg.classList.remove('hidden');
-            stat.innerText = "ON";
-        } else {
-            bg.classList.add('hidden');
-            stat.innerText = "OFF";
+        cvs.onmousedown = (e) => { paint = true; draw(e.offsetX, e.offsetY); };
+        cvs.onmousemove = (e) => { if(paint) draw(e.offsetX, e.offsetY); };
+        window.onmouseup = () => paint = false;
+
+        window.saveProfile = async () => {
+            const newName = document.getElementById('set-username').value;
+            const newPfp = cvs.toDataURL(); // Grab canvas
+            
+            // Only update what changed (simple check)
+            await updateProfile(currentUser, { displayName: newName, photoURL: newPfp });
+            updateMyUI(); // Update sidebar immediately
+            updatePresence(); // Force DB update
+            closeSettings();
         }
-    };
 
-    // --- THEME ENGINE ---
-    const themes = [
-        { c: '#ff0055', g: 'linear-gradient(135deg, #ff0055, #ff00cc)', bg: '#000000' },
-        { c: '#00ccff', g: 'linear-gradient(135deg, #00ccff, #0055ff)', bg: '#000510' },
-        { c: '#00ff88', g: 'linear-gradient(135deg, #00ff88, #009944)', bg: '#051005' }
-    ];
-    const grid = document.getElementById('theme-grid');
-    themes.forEach(t => {
-        const d = document.createElement('div');
-        d.className = 'theme-opt';
-        d.style.background = t.bg;
-        d.style.borderTop = `4px solid ${t.c}`;
-        d.onclick = () => {
-            document.documentElement.style.setProperty('--accent', t.c);
-            document.documentElement.style.setProperty('--accent-grad', t.g);
-            document.documentElement.style.setProperty('--bg', t.bg);
-        };
-        grid.appendChild(d);
-    });
+        // --- THEME & LIQUID LOGIC ---
+        const themes = [
+            { bg: '#050505', accent: '#ff0055', grad: 'linear-gradient(135deg, #ff0055, #ff00cc)' },
+            { bg: '#000510', accent: '#00ccff', grad: 'linear-gradient(135deg, #00ccff, #0055ff)' },
+            { bg: '#051005', accent: '#00ff88', grad: 'linear-gradient(135deg, #00ff88, #009944)' },
+        ];
+        
+        const tGrid = document.getElementById('theme-options');
+        themes.forEach(t => {
+            const d = document.createElement('div');
+            d.className = 'theme-box';
+            d.style.background = t.bg;
+            d.style.borderTop = `4px solid ${t.accent}`;
+            d.onclick = () => {
+                document.documentElement.style.setProperty('--bg-color', t.bg);
+                document.documentElement.style.setProperty('--accent', t.accent);
+                document.documentElement.style.setProperty('--accent-grad', t.grad);
+            }
+            tGrid.appendChild(d);
+        });
 
-    // --- PFP DRAWER (Clean Logic) ---
-    const cvs = document.getElementById('can');
-    const ctx = cvs.getContext('2d');
-    let paint = false;
-    let color = '#ff0055';
-    const scale = 10; 
-
-    // Init Palette
-    const pal = ['#000', '#fff', '#ff0055', '#00ccff', '#00ff88', '#ffcc00', '#555'];
-    document.getElementById('pal').innerHTML = pal.map(c => 
-        `<div class="p-col" style="background:${c}" onclick="setColor('${c}', this)"></div>`
-    ).join('');
-    
-    window.setColor = (c, el) => {
-        color = c;
-        document.querySelectorAll('.p-col').forEach(e => e.classList.remove('active'));
-        el.classList.add('active');
-    };
-
-    function draw(x,y) {
-        ctx.fillStyle = color;
-        ctx.fillRect(Math.floor(x/scale)*scale, Math.floor(y/scale)*scale, scale, scale);
-    }
-    
-    cvs.onmousedown = e => { paint = true; draw(e.offsetX, e.offsetY); };
-    cvs.onmousemove = e => { if(paint) draw(e.offsetX, e.offsetY); };
-    window.onmouseup = () => paint = false;
-
-    // Open Drawer (Reset)
-    window.openModal = (id) => {
-        document.getElementById(id).classList.add('active');
-        if(id === 'pfp-modal') {
-            ctx.fillStyle = '#111'; ctx.fillRect(0,0,320,320);
-        } else if (id === 'settings-modal') {
-            document.getElementById('set-username').value = user.displayName;
+        let liquidOn = true;
+        window.toggleLiquid = () => {
+            liquidOn = !liquidOn;
+            const el = document.getElementById('liquid-bg');
+            const txt = document.getElementById('liquid-status');
+            if(liquidOn) {
+                el.classList.remove('hidden');
+                txt.innerText = "ON";
+            } else {
+                el.classList.add('hidden');
+                txt.innerText = "OFF";
+            }
         }
-    };
 
-    window.savePfp = async () => {
-        const url = cvs.toDataURL();
-        await updateProfile(user, { photoURL: url });
-        renderSelf();
-        window.closeModals();
-    };
+        // --- UTILS ---
+        // FIXED: Robust Avatar generator
+        function getValidAvatar(url, name) {
+            if (url && url.length > 20) return url; // Assume valid base64 or URL
+            const n = name || "User";
+            return `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=222&color=fff&size=64`;
+        }
 
-    function renderSelf() {
-        document.getElementById('current-username').innerText = user.displayName;
-        document.getElementById('current-pfp').src = user.photoURL || `https://ui-avatars.com/api/?name=${user.uid}&background=333&color=fff`;
-    }
-
-    function esc(t) { return t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
-</script>
+        function escapeHtml(text) {
+            if(!text) return "";
+            return text.replace(/&/g, "&amp;")
+                       .replace(/</g, "&lt;")
+                       .replace(/>/g, "&gt;")
+                       .replace(/"/g, "&quot;")
+                       .replace(/'/g, "&#039;");
+        }
+    </script>
 </body>
 </html>
