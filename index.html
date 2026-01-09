@@ -4,79 +4,116 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ig0 main</title>
+    <!-- Markdown and Syntax Highlighting Support -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js"></script>
+    
     <style>
-        :root { --bg-glass: rgba(255, 255, 255, 0.25); --text: #000000; --border: rgba(0, 0, 0, 0.08); --secondary: #444444; --overlay: rgba(0, 0, 0, 0.03); --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1); --accent-blue: #007aff; }
-        html.inverted { filter: invert(1) hue-rotate(180deg); }
+        /* Default Light/Glass Theme (Hardcoded) */
+        :root {
+            --bg-color: #ffffff;
+            --bg-glass: rgba(255, 255, 255, 0.25);
+            --text-main: #000000;
+            --text-secondary: #444444;
+            --border-color: rgba(0, 0, 0, 0.08);
+            --overlay-color: rgba(0, 0, 0, 0.03);
+            --modal-bg: #ffffff;
+            --modal-border: #000000;
+            --input-bg: transparent;
+            --input-border: #ddd;
+            --user-msg-bg: #000000;
+            --user-msg-text: #ffffff;
+            --ai-msg-bg: #f0f0f0;
+            --ai-msg-text: #000000;
+            --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1);
+            --icon-color: #000000;
+        }
+
+        /* Base Styles */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
-        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #ffffff; transition: filter 0.3s ease; }
-        #kernel-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; color: rgba(0, 0, 0, 0.5); line-height: 1.4; padding: 20px; overflow: hidden; user-select: none; white-space: pre; background: #fff; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.2); border-radius: 10px; }
+        
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg-color); color: var(--text-main); }
+        
+        #kernel-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; color: var(--text-secondary); opacity: 0.3; line-height: 1.4; padding: 20px; overflow: hidden; user-select: none; white-space: pre; pointer-events: none; }
+        
         #glass-wrapper { position: relative; z-index: 10; height: 100vh; width: 100vw; overflow-y: auto; background: var(--bg-glass); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; flex-direction: column; }
+        
         nav { padding: 30px 60px; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
+        .logo { font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; color: var(--text-main); }
         .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-links button { background: none; border: none; cursor: pointer; color: var(--text); font-size: 12px; font-weight: 500; padding: 0; transition: opacity 0.2s ease; }
-        .nav-links button:hover { opacity: 0.5; }
+        
         main { flex: 1; padding: 40px 60px; max-width: 500px; margin-right: auto; margin-left: 0; width: 100%; box-sizing: border-box; }
-        h1 { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: -2px; line-height: 1; }
-        p.description { font-size: 14px; color: var(--secondary); margin-bottom: 10px; line-height: 1.6; max-width: 400px; }
-        .shoutout { font-size: 13px; font-weight: 600; color: #000; margin-bottom: 60px; display: block; }
-        .directory-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #000; font-weight: 800; margin-bottom: 15px; display: block; opacity: 0.6; }
-        .app-list { display: flex; flex-direction: column; gap: 1px; background-color: var(--border); border: 0.5px solid var(--border); }
-        .app-card { background-color: rgba(255, 255, 255, 0.4); padding: 20px; text-decoration: none; color: inherit; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s var(--smooth-curve); cursor: pointer; border: none; text-align: left; width: 100%; font-family: inherit; }
-        .app-card:hover { background-color: rgba(255, 255, 255, 0.8); padding-left: 24px; }
+        h1 { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: -2px; line-height: 1; color: var(--text-main); }
+        p.description { font-size: 14px; color: var(--text-secondary); margin-bottom: 10px; line-height: 1.6; max-width: 400px; }
+        .shoutout { font-size: 13px; font-weight: 600; color: var(--text-main); margin-bottom: 60px; display: block; }
+        .directory-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: var(--text-main); font-weight: 800; margin-bottom: 15px; display: block; opacity: 0.6; }
+        
+        .app-list { display: flex; flex-direction: column; gap: 1px; background-color: var(--border-color); border: 0.5px solid var(--border-color); }
+        .app-card { background-color: rgba(255, 255, 255, 0.4); padding: 20px; text-decoration: none; color: var(--text-main); display: flex; justify-content: space-between; align-items: center; transition: all 0.4s var(--smooth-curve); cursor: pointer; border: none; text-align: left; width: 100%; font-family: inherit; }
+        .app-card:hover { background-color: #ffffff; padding-left: 24px; }
         .app-info h3 { margin: 0; font-size: 13px; font-weight: 600; }
-        .app-info p { margin: 4px 0 0 0; font-size: 11px; color: #555; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(2px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s var(--smooth-curve); }
+        .app-info p { margin: 4px 0 0 0; font-size: 11px; color: var(--text-secondary); }
+        
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay-color); backdrop-filter: blur(2px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s var(--smooth-curve); }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal { background: #fff; padding: 40px; border: 0.5px solid #000; width: 300px; transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--smooth-curve); }
+        .modal { background: var(--modal-bg); padding: 40px; border: 0.5px solid var(--modal-border); width: 300px; transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--smooth-curve); position: relative; color: var(--text-main); }
         .modal-overlay.active .modal { transform: scale(1) translateY(0); }
-        footer { padding: 60px; font-size: 10px; color: #000; font-weight: 500; margin-top: auto; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
+        
+        footer { padding: 60px; font-size: 10px; color: var(--text-main); font-weight: 500; margin-top: auto; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
+        
+        /* Ygrt App Specifics */
         #ygrt-modal .modal { width: 450px; height: 550px; display: flex; flex-direction: column; padding: 0; overflow: hidden; transition: all 0.5s var(--smooth-curve); }
         #ygrt-modal.fullscreen .modal { width: 100vw; height: 100vh; border-radius: 0; border: none; transform: none; }
-        #ygrt-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; }
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .header-btn { cursor: pointer; font-size: 14px; opacity: 0.6; transition: opacity 0.2s; }
-        .header-btn:hover { opacity: 1; }
+        
+        #ygrt-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .header-btn { cursor: pointer; opacity: 0.6; transition: all 0.2s; padding: 6px; display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+        .header-btn:hover { opacity: 1; background: var(--border-color); }
+        .header-btn svg { width: 16px; height: 16px; stroke: var(--icon-color); stroke-width: 2; fill: none; }
+        
         #ygrt-chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fff; scroll-behavior: smooth; }
-        #ygrt-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; position: relative; }
         
+        #ygrt-input-area { padding: 15px; border-top: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; position: relative; }
         #ygrt-input-container { position: relative; width: 100%; }
-        #ygrt-input { width: 100%; border: 1px solid #ddd; padding: 10px 15px; border-radius: 20px; font-size: 13px; font-family: inherit; outline: none; box-sizing: border-box; background: transparent; position: relative; z-index: 2; color: #000; }
-        
-        /* GHOST TEXT FIX: Ensure fonts and spacing match exactly */
+        #ygrt-input { width: 100%; border: 1px solid var(--input-border); padding: 10px 15px; border-radius: 20px; font-size: 13px; font-family: inherit; outline: none; box-sizing: border-box; background: var(--input-bg); position: relative; z-index: 2; color: var(--text-main); }
         #ygrt-input-ghost { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 11px 16px; font-size: 13px; font-family: inherit; color: transparent; pointer-events: none; white-space: pre; box-sizing: border-box; z-index: 1; line-height: normal; }
         
         .ygrt-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-wrap: break-word; position: relative; }
-        .ygrt-msg.ai { align-self: flex-start; background: #f0f0f0; color: #000; border-bottom-left-radius: 2px; }
-        .ygrt-msg.user { align-self: flex-end; background: #000; color: #fff; border-bottom-right-radius: 2px; }
-        .generated-img { width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; }
-        .typing-cursor::after { content: ' '; display: inline-block; width: 8px; height: 14px; background: #000; margin-left: 4px; vertical-align: middle; animation: blink-caret 0.75s step-end infinite; }
+        .ygrt-msg.ai { align-self: flex-start; background: var(--ai-msg-bg); color: var(--ai-msg-text); border-bottom-left-radius: 2px; }
+        .ygrt-msg.user { align-self: flex-end; background: var(--user-msg-bg); color: var(--user-msg-text); border-bottom-right-radius: 2px; }
         
-        .sparkle-text {
-            font-weight: bold;
-            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
-            background-size: 400% 400%;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: rainbow 3s ease infinite;
-            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 10px rgba(255,255,255,0.4);
-            display: inline-block;
-        }
-
-        @keyframes rainbow {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        @keyframes blink-caret { from, to { background: transparent; } 50% { background: #000; } }
+        .generated-img { width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; border: 1px solid var(--border-color); }
+        
+        /* Utility & Animations */
+        .typing-cursor::after { content: ' '; display: inline-block; width: 8px; height: 14px; background: var(--text-main); margin-left: 4px; vertical-align: middle; animation: blink-caret 0.75s step-end infinite; }
+        .sparkle-text { font-weight: bold; background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff); background-size: 400% 400%; -webkit-background-clip: text; -webkit-text-fill-color: transparent; animation: rainbow 3s ease infinite; text-shadow: 0 0 5px rgba(255,255,255,0.8); display: inline-block; }
+        @keyframes rainbow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes blink-caret { from, to { background: transparent; } 50% { background: var(--text-main); } }
+        
         .thinking { display: flex; gap: 4px; padding: 12px; }
         .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: dot-pulse 1.4s infinite ease-in-out both; }
         .dot:nth-child(1) { animation-delay: -0.32s; }
         .dot:nth-child(2) { animation-delay: -0.16s; }
         @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
+
+        /* Code Block & Formatting */
+        .ygrt-msg.ai pre { background: #282c34; padding: 0; border-radius: 8px; overflow: hidden; margin: 8px 0; border: 1px solid #3e4451; }
+        .ygrt-msg.ai code { font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 12px; }
+        .ygrt-msg.ai p { margin: 0 0 8px 0; }
+        .code-header { background: #21252b; padding: 6px 12px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #abb2bf; border-bottom: 1px solid #3e4451; }
+        .code-content { padding: 12px; overflow-x: auto; color: #abb2bf; }
+        .copy-btn { background: transparent; border: 1px solid #5c6370; color: #abb2bf; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 10px; transition: all 0.2s; }
+        .copy-btn:hover { background: #5c6370; color: #fff; }
+
+        /* Settings Panel */
+        #ygrt-settings { position: absolute; top: 50px; right: 20px; width: 200px; background: var(--modal-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 200; display: none; opacity: 0; transform: translateY(-10px); transition: all 0.3s var(--smooth-curve); }
+        #ygrt-settings.active { display: block; opacity: 1; transform: translateY(0); }
+        .setting-row { margin-bottom: 12px; }
+        .setting-row label { display: block; font-size: 11px; font-weight: 600; margin-bottom: 4px; color: var(--text-secondary); }
+        .setting-row input { width: 100%; box-sizing: border-box; padding: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 6px; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -85,7 +122,7 @@
         <nav>
             <div class="logo">ig0</div>
             <div class="nav-links">
-                <button onclick="toggleInvert()" title="Invert Colors">◑</button>
+                <!-- Themes removed as requested -->
             </div>
         </nav>
         <main>
@@ -100,6 +137,12 @@
                 <button class="app-card" onclick="openYgrt()">
                     <div class="app-info"><h3>Ygrt AI</h3><p>Smart assistant powered by Groq (With a Q)</p></div>
                 </button>
+                <button class="app-card" onclick="openProxyModal()">
+                    <div class="app-info"><h3>Cloudflare Proxy</h3><p>Access sites via worker proxy.</p></div>
+                </button>
+                <button class="app-card" onclick="openLggr()">
+                    <div class="app-info"><h3>lggr</h3><p>Made for my buddy</p></div>
+                </button>
                 <a href="bugger.html" class="app-card">
                     <div class="app-info"><h3>bggr</h3><p>extprint3r clone: extension thing</p></div>
                 </a>
@@ -111,60 +154,358 @@
         <footer>ig0 stuffs.</footer>
     </div>
 
+    <!-- lggr Modal -->
+    <div class="modal-overlay" id="lggr-modal" onclick="if(event.target==this) closeLggr()">
+        <div class="modal" style="height: auto; width: 400px; text-align: center;">
+            <h3 style="margin-top: 0;">lggr</h3>
+            <p style="font-size: 14px; font-weight: bold; margin-bottom: 20px; line-height: 1.4;">WARNING: BENCHMARK TOOL - MAY CRASH BROWSER</p>
+            
+            <div style="margin-bottom: 20px;">
+                <label style="font-size: 12px; display: block; margin-bottom: 5px; color: var(--text-secondary); text-align: left;">Benchmark Profile:</label>
+                <select id="lggr-mode" onchange="checkLggrCustom()" style="padding: 8px; width: 100%; border-radius: 6px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main);">
+                    <option value="leak_1">Tiny Leak (1MB / 2s)</option>
+                    <option value="leak_2">Standard (1MB / 1s)</option>
+                    <option value="leak_3">Fast Leak (10MB / 1s)</option>
+                    <option value="aggr_1">Aggressive (50MB / 0.5s)</option>
+                    <option value="aggr_2">Extreme (100MB / 0.1s)</option>
+                    <option value="burst_100">Burst 100MB</option>
+                    <option value="burst_500">Burst 500MB</option>
+                    <option value="burst_1000">Burst 1000MB</option>
+                    <option value="burst_2000">Burst 2GB</option>
+                    <option value="custom">Custom Configuration...</option>
+                </select>
+            </div>
+
+            <div id="lggr-custom-ui" style="display: none; margin-bottom: 20px; text-align: left; background: var(--border-color); padding: 10px; border-radius: 8px;">
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 11px;">MB per tick:</label>
+                    <input type="number" id="cust-mb" value="10" style="width: 100%; box-sizing: border-box; padding: 5px; border-radius: 4px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main);">
+                </div>
+                <div>
+                    <label style="font-size: 11px;">Interval (ms):</label>
+                    <input type="number" id="cust-ms" value="500" style="width: 100%; box-sizing: border-box; padding: 5px; border-radius: 4px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main);">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; font-size: 13px; color: var(--text-main);">
+                Allocated: <span id="lggr-status" style="font-weight: bold;">0</span> MB
+            </div>
+
+            <div style="display: flex; gap: 10px; justify-content: center;">
+                <button onclick="closeLggr()" style="padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 6px; cursor: pointer;">Close</button>
+                <button id="lggr-btn" onclick="toggleLggr()" style="padding: 8px 16px; background: var(--user-msg-bg); color: var(--user-msg-text); border: none; border-radius: 6px; cursor: pointer;">Start</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="ygrt-modal" onclick="if(event.target==this) closeYgrt()">
         <div class="modal">
             <div id="ygrt-header">
-                <span style="font-weight: 700; font-size: 13px;">Ygrt AI</span>
+                <div style="display: flex; flex-direction: column;">
+                    <span style="font-weight: 700; font-size: 13px;">Ygrt AI</span>
+                    <span style="font-size: 9px; color: var(--text-secondary);">Made with Groq fork of OpenAI</span>
+                </div>
                 <div class="header-actions">
-                    <span class="header-btn" onclick="toggleYgrtFullscreen()" title="Fullscreen">⛶</span>
-                    <span class="header-btn" onclick="closeYgrt()" title="Close">✕</span>
+                    <span class="header-btn" onclick="saveChat()" title="Save Conversation">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    </span>
+                    <span class="header-btn" onclick="triggerLoad()" title="Load Conversation">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                    </span>
+                    <span class="header-btn" onclick="deleteChat()" title="Delete History">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </span>
+                    <span style="border-left: 1px solid var(--border-color); height: 16px; margin: 0 4px;"></span>
+                    <span class="header-btn" onclick="toggleSettings()" title="Settings">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    </span>
+                    <span class="header-btn" onclick="toggleYgrtFullscreen()" title="Fullscreen">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                    </span>
+                    <span class="header-btn" onclick="closeYgrt()" title="Close">
+                        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                    </span>
                 </div>
             </div>
+            
+            <input type="file" id="load-chat-input" style="display: none;" accept=".json" onchange="handleFileLoad(event)">
+
+            <div id="ygrt-settings">
+                <div class="setting-row">
+                    <label>Img Width (px)</label>
+                    <input type="number" id="set-width" value="1024" placeholder="1024">
+                </div>
+                <div class="setting-row">
+                    <label>Img Height (px)</label>
+                    <input type="number" id="set-height" value="1024" placeholder="1024">
+                </div>
+                <div class="setting-row">
+                    <label>Seed (-1 for random)</label>
+                    <input type="number" id="set-seed" value="-1" placeholder="-1">
+                </div>
+            </div>
+
             <div id="ygrt-chat-box">
-                <div class="ygrt-msg ai">Hello! I am Ygrt AI. Type "imagine [prompt]" to generate images! 🍦</div>
+                <div class="ygrt-msg ai">Hello! I am ygrt ai made using Groq and OpenAI. To generate an image type "Imagine". Or you could just chat. Happy to help!</div>
             </div>
             <div id="ygrt-input-area">
                 <div id="ygrt-input-container">
                     <div id="ygrt-input-ghost"></div>
                     <input type="text" id="ygrt-input" placeholder="Ask Ygrt or 'imagine' something..." oninput="handleYgrtTyping()" onkeydown="if(event.key==='Enter') sendYgrt()">
                 </div>
-                <button class="btn-black" style="width: 100%; padding: 8px 16px; background: #000; color: #fff; border: none; border-radius: 20px; cursor: pointer;" onclick="sendYgrt()">Send</button>
+                <button class="btn-black" style="width: 100%; padding: 8px 16px; background: var(--user-msg-bg); color: var(--user-msg-text); border: 1px solid var(--border-color); border-radius: 20px; cursor: pointer; font-weight: bold;" onclick="sendYgrt()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Proxy Modal -->
+    <div class="modal-overlay" id="proxy-modal" onclick="if(event.target==this) closeProxyModal()">
+        <div class="modal" style="height: auto; width: 350px;">
+            <h3 style="margin-top: 0;">Cloudflare Proxy</h3>
+            <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 15px;">Enter the URL you want to visit:</p>
+            <input type="text" id="proxy-input" placeholder="https://example.com" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid var(--input-border); background: var(--input-bg); color: var(--text-main); border-radius: 8px; box-sizing: border-box;" onkeydown="if(event.key==='Enter') goProxy()">
+            <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                <button onclick="closeProxyModal()" style="padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button onclick="goProxy()" style="padding: 8px 16px; background: var(--user-msg-bg); color: var(--user-msg-text); border: none; border-radius: 6px; cursor: pointer;">Go</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- LGGR Logic ---
+        let lggrInterval = null;
+        let memoryChunks = [];
+
+        function openLggr() { toggleModal('lggr-modal', true); }
+        function closeLggr() { toggleModal('lggr-modal', false); stopLggr(); }
+
+        function checkLggrCustom() {
+            const mode = document.getElementById('lggr-mode').value;
+            const ui = document.getElementById('lggr-custom-ui');
+            ui.style.display = mode === 'custom' ? 'block' : 'none';
+        }
+
+        function stopLggr() {
+            if (lggrInterval) clearInterval(lggrInterval);
+            lggrInterval = null;
+            document.getElementById('lggr-btn').textContent = "Start";
+        }
+
+        function toggleLggr() {
+            const btn = document.getElementById('lggr-btn');
+            if (lggrInterval) {
+                stopLggr();
+                return;
+            }
+
+            const mode = document.getElementById('lggr-mode').value;
+            const status = document.getElementById('lggr-status');
+            
+            // Helper to allocate MBs
+            const allocate = (mbs) => {
+                try {
+                    for(let i=0; i<mbs; i++) {
+                        // 1MB chunk
+                        memoryChunks.push(new Uint8Array(1024 * 1024));
+                    }
+                    status.textContent = memoryChunks.length;
+                } catch(e) {
+                    stopLggr();
+                    alert("Browser Memory Limit Reached!");
+                }
+            };
+
+            let mbPerTick = 0;
+            let intervalMs = 0;
+
+            switch (mode) {
+                case 'leak_1': mbPerTick = 1; intervalMs = 2000; break;
+                case 'leak_2': mbPerTick = 1; intervalMs = 1000; break;
+                case 'leak_3': mbPerTick = 10; intervalMs = 1000; break;
+                case 'aggr_1': mbPerTick = 50; intervalMs = 500; break;
+                case 'aggr_2': mbPerTick = 100; intervalMs = 100; break;
+                case 'burst_100': allocate(100); return;
+                case 'burst_500': allocate(500); return;
+                case 'burst_1000': allocate(1000); return;
+                case 'burst_2000': allocate(2000); return;
+                case 'custom':
+                    mbPerTick = parseInt(document.getElementById('cust-mb').value) || 1;
+                    intervalMs = parseInt(document.getElementById('cust-ms').value) || 1000;
+                    break;
+                default: return;
+            }
+
+            btn.textContent = "Stop";
+            
+            lggrInterval = setInterval(() => {
+                allocate(mbPerTick);
+            }, intervalMs);
+        }
+
+        // --- Chat & Logic ---
+        let chatHistory = [{ role: "system", content: "You are YgrtAI. You were made using Groq and OpenAI." }];
+
+        marked.setOptions({
+            highlight: function(code, lang) {
+                const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+                return hljs.highlight(code, { language }).value;
+            },
+            langPrefix: 'hljs language-'
+        });
+
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language) {
+            const validCode = typeof code === 'string' ? code : code.text || ''; 
+            const lang = language || 'txt';
+            return `
+            <div class="code-block-wrapper">
+                <div class="code-header">
+                    <span>${lang}</span>
+                    <button class="copy-btn" onclick="copyToClipboard(this)">Copy</button>
+                </div>
+                <pre><code class="code-content hljs language-${lang}">${validCode}</code></pre>
+                <div style="display:none;" class="raw-code">${validCode}</div>
+            </div>`;
+        };
+        marked.use({ renderer });
+
+        function copyToClipboard(btn) {
+            const wrapper = btn.closest('.code-block-wrapper');
+            const code = wrapper.querySelector('.raw-code').textContent;
+            navigator.clipboard.writeText(code).then(() => {
+                const original = btn.textContent;
+                btn.textContent = "Copied!";
+                setTimeout(() => btn.textContent = original, 2000);
+            });
+        }
+
         function toggleModal(id, show) {
             const m = document.getElementById(id);
             if (show) { m.style.display = 'flex'; setTimeout(() => m.classList.add('active'), 10); } 
             else { m.classList.remove('active'); setTimeout(() => m.style.display = 'none', 400); }
         }
         function openYgrt() { toggleModal('ygrt-modal', true); setTimeout(() => document.getElementById('ygrt-input').focus(), 100); }
-        function closeYgrt() { toggleModal('ygrt-modal', false); }
+        function closeYgrt() { toggleModal('ygrt-modal', false); document.getElementById('ygrt-settings').classList.remove('active'); }
         function toggleYgrtFullscreen() { document.getElementById('ygrt-modal').classList.toggle('fullscreen'); }
-        function toggleInvert() { document.documentElement.classList.toggle('inverted'); }
+        
+        function toggleSettings() {
+            document.getElementById('ygrt-settings').classList.toggle('active');
+        }
+
+        function saveChat() {
+            if (chatHistory.length <= 1) { // 1 because system prompt is always there
+                alert("Nothing to save!");
+                return;
+            }
+            const blob = new Blob([JSON.stringify(chatHistory, null, 2)], {type: 'application/json'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `ygrt-chat-${Date.now()}.json`;
+            a.click();
+        }
+
+        function triggerLoad() {
+            document.getElementById('load-chat-input').click();
+        }
+
+        function handleFileLoad(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const loadedHistory = JSON.parse(e.target.result);
+                    if (Array.isArray(loadedHistory)) {
+                        chatHistory = loadedHistory;
+                        renderHistoryToUI();
+                    } else {
+                        alert("Invalid file format.");
+                    }
+                } catch (err) {
+                    alert("Error parsing chat file.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function deleteChat() {
+            if (confirm("Are you sure you want to delete this conversation?")) {
+                chatHistory = [{ role: "system", content: "You are YgrtAI. You were made using Groq and OpenAI." }];
+                const box = document.getElementById('ygrt-chat-box');
+                box.innerHTML = '<div class="ygrt-msg ai">Hello! I am ygrt ai made using Groq and OpenAI. To generate an image type "Imagine". Or you could just chat. Happy to help!</div>';
+            }
+        }
+
+        function renderHistoryToUI() {
+            const chatBox = document.getElementById('ygrt-chat-box');
+            chatBox.innerHTML = ''; 
+
+            if (chatHistory.length <= 1) {
+                chatBox.innerHTML = '<div class="ygrt-msg ai">Hello! I am ygrt ai made using Groq and OpenAI. To generate an image type "Imagine". Or you could just chat. Happy to help!</div>';
+                return;
+            }
+
+            // Skip system prompt at index 0
+            for (let i = 1; i < chatHistory.length; i++) {
+                const msg = chatHistory[i];
+                const div = document.createElement('div');
+                if (msg.role === 'user') {
+                    div.className = 'ygrt-msg user';
+                    if (msg.content.toLowerCase().startsWith('imagine ')) {
+                        const keyword = msg.content.substring(0, 7);
+                        const rest = msg.content.substring(7);
+                        div.innerHTML = `<span class="sparkle-text">${keyword}</span>${rest}`;
+                    } else {
+                        div.textContent = msg.content;
+                    }
+                } else {
+                    div.className = 'ygrt-msg ai';
+                    div.innerHTML = marked.parse(msg.content);
+                }
+                chatBox.appendChild(div);
+            }
+            
+            document.querySelectorAll('pre code').forEach((block) => {
+                hljs.highlightElement(block);
+            });
+            
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function openProxyModal() { toggleModal('proxy-modal', true); setTimeout(() => document.getElementById('proxy-input').focus(), 100); }
+        function closeProxyModal() { toggleModal('proxy-modal', false); }
+        function goProxy() {
+            const val = document.getElementById('proxy-input').value;
+            if(!val) return;
+            const target = encodeURIComponent(val.startsWith('http') ? val : 'https://' + val);
+            window.location.href = "https://yo-gurt.uareawesomesauce.workers.dev/?target=" + target;
+        }
 
         function handleYgrtTyping() {
             const input = document.getElementById('ygrt-input');
             const ghost = document.getElementById('ygrt-input-ghost');
             const val = input.value;
             
+            // Fix "Break": If input is longer than container, disable ghost to prevent visual alignment break
+            if (input.scrollWidth > input.clientWidth + 5) {
+                ghost.innerHTML = '';
+                input.style.color = 'inherit';
+                return;
+            }
+
             if (val.toLowerCase().startsWith('imagine')) {
                 const keyword = val.substring(0, 7);
                 const rest = val.substring(7);
-                // Make the 'imagine' keyword transparent in the REAL input so ghost shows through
-                // But keep the 'rest' of the text visible in the REAL input
-                ghost.innerHTML = `<span class="sparkle-text">${keyword}</span>`;
-                
-                // Use a trick: move the real text right by the width of 'imagine'? 
-                // Easier: set a text-indent or just hide the FIRST 7 characters of the real input
-                // Since that's hard, let's just use ghost for EVERYTHING when 'imagine' is detected
-                ghost.innerHTML = `<span class="sparkle-text">${keyword}</span><span style="color: black;">${rest}</span>`;
+                // FIXED: ghost text color was inheriting transparent from parent
+                ghost.innerHTML = `<span class="sparkle-text">${keyword}</span><span style="color: var(--text-main);">${rest}</span>`;
                 input.style.color = 'transparent'; 
-                input.style.caretColor = 'black'; // Keep caret visible
+                input.style.caretColor = 'var(--text-main)';
             } else {
                 ghost.innerHTML = '';
                 input.style.color = 'inherit';
+                input.style.caretColor = 'auto'; // Reset caret
             }
         }
 
@@ -172,14 +513,41 @@
             element.classList.add('typing-cursor');
             const chatBox = document.getElementById('ygrt-chat-box');
             let i = 0;
+            
+            // JITTER FIX: Disable smooth scrolling during rapid update
+            chatBox.style.scrollBehavior = 'auto';
+
             return new Promise(resolve => {
                 function nextChar() {
+                    // LIGHT SPEED: Process chunk of characters at a time to reduce jitter and increase speed
+                    const chunkSize = 20; 
+
                     if (i < text.length) {
-                        element.textContent += text.charAt(i); i++;
+                        i = Math.min(i + chunkSize, text.length); 
+                        // Parse markdown immediately on the partial string
+                        element.innerHTML = marked.parse(text.substring(0, i));
+                        
+                        // Highlight code blocks immediately during typing
+                        element.querySelectorAll('pre code').forEach((block) => {
+                           hljs.highlightElement(block);
+                        });
+
                         chatBox.scrollTop = chatBox.scrollHeight;
-                        const speed = 15;
-                        setTimeout(nextChar, speed);
-                    } else { element.classList.remove('typing-cursor'); resolve(); }
+                        
+                        // Ultra fast timeout
+                        setTimeout(nextChar, 1);
+                    } else { 
+                        element.classList.remove('typing-cursor'); 
+                        // Final rendering pass
+                        element.innerHTML = marked.parse(text);
+                        element.querySelectorAll('pre code').forEach((block) => {
+                           hljs.highlightElement(block);
+                        });
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        // RESTORE SMOOTH SCROLLING
+                        chatBox.style.scrollBehavior = 'smooth'; 
+                        resolve(); 
+                    }
                 }
                 nextChar();
             });
@@ -192,13 +560,15 @@
             if (!originalText) return;
             const chatBox = document.getElementById('ygrt-chat-box');
             
+            // Reset Input State Immediately
             input.value = '';
             ghost.innerHTML = '';
             input.style.color = 'inherit';
+            input.style.caretColor = 'auto'; // Reset caret
 
+            // Add User Message
             const userDiv = document.createElement('div');
             userDiv.className = 'ygrt-msg user';
-            
             if (originalText.toLowerCase().startsWith('imagine ')) {
                 const keyword = originalText.substring(0, 7);
                 const rest = originalText.substring(7);
@@ -206,7 +576,6 @@
             } else {
                 userDiv.textContent = originalText;
             }
-            
             chatBox.appendChild(userDiv);
             chatBox.scrollTop = chatBox.scrollHeight;
 
@@ -215,81 +584,80 @@
             thinkingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
             chatBox.appendChild(thinkingDiv);
 
-            const helpTriggers = ['generate me an image', 'create an image', 'draw me', 'make an image', 'show me a picture'];
-            if (helpTriggers.some(t => originalText.toLowerCase().includes(t)) && !originalText.toLowerCase().startsWith('imagine')) {
-                chatBox.removeChild(thinkingDiv);
-                const aiDiv = document.createElement('div');
-                aiDiv.className = 'ygrt-msg ai';
-                chatBox.appendChild(aiDiv);
-                const promptGuess = originalText.split(' of ').pop() || "...";
-                await typeMessage(aiDiv, `Sure! But you need to type the command "imagine" ${promptGuess}`);
-                return;
-            }
-
+            // --- IMAGE GENERATION ---
             if (originalText.toLowerCase().startsWith('imagine ')) {
                 const prompt = originalText.replace(/imagine /i, '');
-                const apiKey = ""; 
-                
-                const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
-                    try {
-                        const res = await fetch(url, options);
-                        if (!res.ok && retries > 0) throw new Error(res.status);
-                        return res;
-                    } catch (err) {
-                        if (retries === 0) throw err;
-                        await new Promise(r => setTimeout(r, backoff));
-                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
-                    }
-                };
+                chatHistory.push({ role: "user", content: originalText }); 
+
+                const width = document.getElementById('set-width').value || 1024;
+                const height = document.getElementById('set-height').value || 1024;
+                let seed = document.getElementById('set-seed').value;
+                if (!seed || seed == -1) seed = Math.floor(Math.random() * 999999);
 
                 try {
-                    const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
-                    });
+                    const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
                     
-                    const result = await response.json();
-                    chatBox.removeChild(thinkingDiv);
+                    const img = new Image();
+                    img.src = imageUrl;
+                    img.className = 'generated-img';
                     
-                    if (result.predictions && result.predictions[0]) {
+                    img.onload = function() {
+                        chatBox.removeChild(thinkingDiv);
                         const aiDiv = document.createElement('div');
                         aiDiv.className = 'ygrt-msg ai';
-                        const img = document.createElement('img');
-                        img.className = 'generated-img';
-                        img.src = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
                         aiDiv.appendChild(img);
+                        
+                        const meta = document.createElement('div');
+                        meta.style.fontSize = "10px"; meta.style.color = "var(--text-secondary)"; meta.style.marginTop = "5px";
+                        meta.textContent = `Size: ${width}x${height} | Seed: ${seed}`;
+                        aiDiv.appendChild(meta);
+                        
                         chatBox.appendChild(aiDiv);
-                    } else { throw new Error(); }
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                    };
+                    img.onerror = function() { throw new Error("Load failed"); };
+
                 } catch (e) {
                     if (chatBox.contains(thinkingDiv)) chatBox.removeChild(thinkingDiv);
                     const err = document.createElement('div');
                     err.className = 'ygrt-msg ai';
-                    err.textContent = "Image generation failed. Try a different prompt.";
+                    err.textContent = "Image generation failed.";
                     chatBox.appendChild(err);
                 }
-                chatBox.scrollTop = chatBox.scrollHeight;
                 return;
             }
 
+            // --- TEXT CHAT ---
             const API_KEY = "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";
             const ORG_ID = "org_01keg04x3kef3v8v1mzew41nae";
             const MODEL = "openai/gpt-oss-120b"; 
+
+            chatHistory.push({ role: "user", content: originalText });
 
             try {
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${API_KEY}`, "Groq-Organization": ORG_ID, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: MODEL, messages: [{ role: "user", content: originalText }], temperature: 0.7 })
+                    body: JSON.stringify({ model: MODEL, messages: chatHistory, temperature: 0.7 })
                 });
+                
+                if (!response.ok) throw new Error("API Error");
+                
                 const data = await response.json();
                 chatBox.removeChild(thinkingDiv);
+                
+                const aiContent = data.choices[0]?.message?.content || "Ygrt is sleepy.";
+                chatHistory.push({ role: "assistant", content: aiContent });
+
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'ygrt-msg ai';
                 chatBox.appendChild(aiDiv);
-                await typeMessage(aiDiv, data.choices[0]?.message?.content || "Ygrt is sleepy.");
+                
+                await typeMessage(aiDiv, aiContent);
+                
             } catch (error) {
                 if (chatBox.contains(thinkingDiv)) chatBox.removeChild(thinkingDiv);
+                chatHistory.pop(); 
             }
             chatBox.scrollTop = chatBox.scrollHeight;
         }
@@ -307,4 +675,3 @@
     </script>
 </body>
 </html>
-
