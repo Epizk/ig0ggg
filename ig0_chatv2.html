@@ -267,21 +267,35 @@
             scroll-behavior: smooth;
         }
 
+        /* --- FIXED MESSAGE BUBBLES --- */
         .msg-row { display: flex; align-items: flex-end; gap: 12px; width: 100%; }
         .msg-row.me { flex-direction: row-reverse; }
         
+        /* Wrapper fixes for proper alignment and sizing on flex reverse */
+        .msg-row > div { 
+            display: flex; 
+            flex-direction: column; 
+            max-width: 80%; /* Constrain width at the wrapper level */
+        }
+        .msg-row.me > div { 
+            align-items: flex-end; /* Ensure user bubbles hug the right */
+        }
+        
         .bubble {
             width: fit-content; 
-            max-width: 80%; 
+            max-width: 100%; /* Let wrapper control max width */
             min-width: 0;
             padding: 12px 18px; 
             border-radius: 20px;
             font-size: 15px; 
             line-height: 1.5;
+            text-align: left; /* Always align text left */
+            
+            /* Clean Wrapping Logic - Fixed */
             white-space: pre-wrap;       
             word-wrap: break-word;       
-            overflow-wrap: anywhere; 
-            word-break: break-word;   
+            overflow-wrap: break-word; /* Standard wrapping */
+            word-break: normal;        /* Prevent aggressive breaking */
         }
         
         .msg-row.other .bubble { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; color: var(--text-main); }
