@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ight2 | Ultra</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Inter:wght@400;600&family=Roboto:wght@400;500&family=Lato:wght@400;700&family=Montserrat:wght@400;600&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet"> <!-- For TempleOS -->
     <style>
@@ -29,6 +29,8 @@
             --font: 'Outfit', sans-serif;
             --gap-size: 15px;
             --app-max-width: 1600px;
+            
+            --glow-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
         /* --- GLOBAL RESET --- */
@@ -42,14 +44,15 @@
             transition: background 0.5s ease;
         }
 
-        /* --- BACKGROUND STYLES (Fixed) --- */
+        /* --- BACKGROUND STYLES (Fixed Logic) --- */
         .bg-layer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             z-index: -1; overflow: hidden; pointer-events: none;
-            opacity: 0; transition: opacity 0.3s ease;
-            display: none; 
+            opacity: 0; 
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
         }
-        .bg-layer.active { opacity: 1; display: block; }
+        .bg-layer.active { opacity: 1; visibility: visible; }
 
         /* Style 1: Liquid */
         .blob {
@@ -103,74 +106,203 @@
         body.layout-focus .sidebar, body.layout-focus .online-panel { display: none; }
         body.layout-focus .app-container { max-width: 900px; padding: 0; gap: 0; }
         body.layout-focus .panel { border-radius: 0; border: none; border-left: 1px solid #222; border-right: 1px solid #222; }
-        body.layout-focus .chat-header { justify-content: space-between; border-bottom: 1px solid #222; } /* Changed to space-between for settings icon */
+        body.layout-focus .chat-header { justify-content: space-between; border-bottom: 1px solid #222; }
         body.layout-focus .focus-settings-btn { display: flex !important; }
 
         /* Hyprland */
         body.layout-hyprland { --radius: 0px; --gap-size: 20px; font-family: 'JetBrains Mono', monospace; }
         body.layout-hyprland .panel { border: 2px solid var(--accent); background: #000; box-shadow: 8px 8px 0px rgba(255,255,255,0.1); }
         
-        /* Laptop */
-        body.layout-laptop { font-size: 13px; --gap-size: 8px; }
-        body.layout-laptop .panel { padding: 10px; }
+        /* Desktop: Rounded Covering Whole Screen - FIXED GLOW CUTOFF */
+        body.layout-desktop .app-container {
+            width: calc(100vw - 80px); /* Reduced width to allow shadow margin */
+            height: calc(100vh - 80px); /* Reduced height to allow shadow margin */
+            margin: 40px auto; /* Centered with space for 50px shadow */
+            background: rgba(0,0,0,0.2);
+            border-radius: 25px;
+            padding: 15px;
+            border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 0 50px rgba(0,0,0,0.5); /* Shadow fits now */
+        }
         
-        /* Floaters */
-        body.layout-floaters { --gap-size: 30px; }
-        body.layout-floaters .panel { border-radius: 35px; background: rgba(20, 20, 20, 0.9); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,255,255,0.05); }
+        /* Laptop: More Compact */
+        body.layout-laptop { font-size: 12px; --gap-size: 6px; --radius: 12px; }
+        body.layout-laptop .panel { padding: 8px; }
+        body.layout-laptop .chat-header { height: 40px; font-size: 14px; }
+        body.layout-laptop .user-mini-card { padding: 8px; margin-top: 10px; }
+        body.layout-laptop .avatar-box { width: 32px; height: 32px; font-size: 16px; }
+        
+        /* Floaters: More Spaced Out */
+        body.layout-floaters { --gap-size: 50px; }
+        body.layout-floaters .panel { 
+            border-radius: 35px; 
+            background: rgba(20, 20, 20, 0.9); 
+            box-shadow: 0 30px 60px -10px rgba(0, 0, 0, 0.8); 
+            border: 1px solid rgba(255,255,255,0.05);
+            transform: scale(0.95);
+        }
 
-        /* KDE Plasma */
-        body.layout-kde { --gap-size: 10px; --radius: 6px; }
-        body.layout-kde .panel { background: rgba(30, 30, 35, 0.95); box-shadow: 0 2px 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
-        body.layout-kde .app-container { padding-bottom: 0; }
+        /* KDE Plasma: Fancy, Settings at Bottom */
+        body.layout-kde { --gap-size: 12px; --radius: 8px; }
+        body.layout-kde .panel { 
+            background: rgba(35, 35, 40, 0.9); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.6); 
+            border: 1px solid rgba(255,255,255,0.15); 
+            backdrop-filter: blur(25px);
+        }
+        body.layout-kde .sidebar { display: flex; flex-direction: column; }
+        /* Move settings (icon-btn) to bottom in KDE mode */
+        body.layout-kde .app-header { display: flex; flex-direction: column; align-items: flex-start; gap: 20px; }
+        body.layout-kde .logo-text { order: 1; margin-bottom: 20px; }
+        body.layout-kde .icon-btn { 
+            position: absolute; bottom: 20px; left: 20px;
+            width: 40px; height: 40px; background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        body.layout-kde .user-mini-card { margin-bottom: 50px; } /* Room for settings */
 
-        /* Gnome */
-        body.layout-gnome { --gap-size: 20px; --radius: 12px; }
-        body.layout-gnome .chat-header { background: rgba(255,255,255,0.05); margin: 10px; border-radius: 8px; border: none; }
+        /* Gnome: Smaller Container, Bigger UI */
+        body.layout-gnome { font-size: 17px; --gap-size: 20px; --radius: 16px; }
+        body.layout-gnome .app-container { max-width: 90%; height: 90vh; margin: 5vh auto; }
+        body.layout-gnome .chat-header { background: rgba(255,255,255,0.08); margin: 15px; border-radius: 12px; border: none; height: 70px; }
+        body.layout-gnome .input-field { padding: 16px; font-size: 17px; }
 
         /* SimplR */
         body.layout-simplr { --gap-size: 0; --radius: 0; }
         body.layout-simplr .panel { background: var(--bg-color); border: none; box-shadow: none; border-right: 1px solid #222; }
         body.layout-simplr .sidebar { border-right: 1px solid #333; }
         
-        /* Mac&Cheze */
-        body.layout-mac { --gap-size: 20px; --radius: 16px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-        body.layout-mac .panel { background: rgba(40,40,40,0.8); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
-        body.layout-mac .chat-header::before {
-            content: ''; display: inline-block; width: 12px; height: 12px; border-radius: 50%;
-            background: #ff5f56; box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
-            margin-right: 50px;
-        }
-
-        /* --- TEMPLE OS MODE --- */
+        /* --- TEMPLE OS MODE (TRUE GOD MODE) --- */
         body.layout-temple {
             --bg-color: #FFFFFF !important;
             --text-main: #0000AA !important; /* God's Blue */
-            --glass-panel: #FFFFFF !important;
-            --glass-border: 4px double #AA0000 !important; /* God's Red */
+            --glass-panel: transparent !important;
+            --glass-border: none !important;
             --accent: #AA0000 !important;
             --accent-grad: #AA0000 !important;
             --text-dim: #000000 !important;
             --radius: 0px !important;
             --gap-size: 0px !important;
             font-family: 'VT323', monospace !important;
-            font-size: 24px !important;
+            font-size: 28px !important;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        body.layout-temple .bg-layer { display: none !important; }
-        body.layout-temple .panel { border-radius: 0; box-shadow: none; }
-        body.layout-temple .bubble { background: #FFFF55 !important; color: #AA0000 !important; border: 2px solid #000000; border-radius: 0; box-shadow: 4px 4px 0 #000; }
-        body.layout-temple .msg-row.me .bubble { background: #0000AA !important; color: #FFFFFF !important; }
-        body.layout-temple .input-field { background: #FFFFFF; border: 2px solid #000000; color: #0000AA; border-radius: 0; font-family: 'VT323', monospace; }
-        body.layout-temple .btn-send { border-radius: 0; background: #AA0000; border: 2px solid #000; }
-        body.layout-temple .user-avatar-sm, body.layout-temple .avatar-box { border-radius: 0; border: 2px solid #000; filter: grayscale(100%) contrast(200%); }
-        body.layout-temple .chat-header { border-bottom: 4px double #000; }
+        
+        /* Remove all fluff */
+        body.layout-temple .bg-layer, 
+        body.layout-temple .blob,
+        body.layout-temple .liquid-layer { display: none !important; }
+        
+        body.layout-temple .app-container {
+            padding: 10px;
+            gap: 20px;
+            border: 4px double #AA0000;
+            background: #FFFFFF;
+            max-width: 100%;
+            height: 100%;
+        }
+
+        body.layout-temple .panel {
+            box-shadow: none !important;
+            background: transparent !important;
+            border: none !important;
+            backdrop-filter: none !important;
+        }
+
+        body.layout-temple .sidebar {
+            border-right: 4px double #000000 !important;
+            background: #FFFFFF !important;
+        }
+
+        /* Raw Text Message Log Style */
+        body.layout-temple .msg-row, body.layout-temple .msg-row.me {
+            display: block;
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        
+        body.layout-temple .msg-row > div, body.layout-temple .msg-row.me > div {
+            max-width: 100%;
+            display: block;
+            text-align: left;
+        }
+
+        body.layout-temple .bubble {
+            background: transparent !important;
+            color: #0000AA !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 0;
+            margin: 0;
+            display: inline;
+            border-radius: 0;
+            width: auto;
+            max-width: none;
+            font-family: 'VT323', monospace;
+        }
+
+        /* Name formatting: [NAME]: Message */
+        body.layout-temple .msg-name {
+            display: inline !important;
+            color: #AA0000 !important; /* Red Names */
+            font-weight: bold;
+            margin-right: 0;
+            text-shadow: 1px 1px 0px #CCCCCC;
+        }
+        body.layout-temple .msg-name::after {
+            content: ": ";
+            color: #000000;
+        }
+        body.layout-temple .msg-row.me .msg-name {
+            display: inline !important; /* Show my name too */
+        }
+
+        /* Hide avatars in text mode */
+        body.layout-temple .user-avatar-sm, 
+        body.layout-temple .avatar-box, 
+        body.layout-temple .msg-avatar-click {
+            display: none !important;
+        }
+
+        /* Input */
+        body.layout-temple .input-wrapper {
+            border-top: 4px double #000000 !important;
+            background: #FFFFFF;
+        }
+        body.layout-temple .input-field {
+            background: #FFFFFF !important;
+            border: none !important;
+            border-bottom: 2px solid #000000 !important;
+            color: #0000AA !important;
+            border-radius: 0;
+            font-family: 'VT323', monospace;
+            padding-left: 0;
+        }
+        body.layout-temple .input-field::placeholder { color: #AA0000; opacity: 0.5; }
+        
+        body.layout-temple .btn-send {
+            border-radius: 0; 
+            background: #AA0000; 
+            border: 2px solid #000; 
+            color: #FFF;
+            box-shadow: 4px 4px 0 #000;
+        }
+        body.layout-temple .btn-send:active { transform: translate(2px, 2px); box-shadow: 2px 2px 0 #000; }
+
+        body.layout-temple .chat-header {
+            border-bottom: 4px double #000 !important;
+            background: #FFFFFF;
+            color: #AA0000 !important;
+            font-weight: 800;
+        }
 
         /* Glass Everything */
         body.glass-everything .panel {
             background: rgba(255, 255, 255, 0.03);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            box-shadow: var(--glow-shadow); /* Fixed Glow */
         }
 
         /* Scrollbar Styling */
@@ -182,10 +314,18 @@
         /* --- APP LAYOUT --- */
         .app-container {
             display: flex; width: 100%; height: 100%;
-            padding: var(--gap-size); gap: var(--gap-size); 
+            /* Fixed padding logic to prevent glow cutoff in tighter modes */
+            padding: max(var(--gap-size), 25px); 
+            gap: var(--gap-size); 
             max-width: var(--app-max-width); margin: 0 auto;
             transition: padding 0.3s, gap 0.3s, max-width 0.3s;
         }
+        
+        /* SimplR Override for tight fit */
+        body.layout-simplr .app-container { padding: 0; }
+        
+        /* Temple Override for frame */
+        body.layout-temple .app-container { padding: 10px; }
 
         .panel {
             background: var(--glass-panel);
@@ -271,31 +411,28 @@
         .msg-row { display: flex; align-items: flex-end; gap: 12px; width: 100%; }
         .msg-row.me { flex-direction: row-reverse; }
         
-        /* Wrapper fixes for proper alignment and sizing on flex reverse */
         .msg-row > div { 
             display: flex; 
             flex-direction: column; 
-            max-width: 80%; /* Constrain width at the wrapper level */
+            max-width: 80%; 
         }
         .msg-row.me > div { 
-            align-items: flex-end; /* Ensure user bubbles hug the right */
+            align-items: flex-end; 
         }
         
         .bubble {
             width: fit-content; 
-            max-width: 100%; /* Let wrapper control max width */
+            max-width: 100%;
             min-width: 0;
             padding: 12px 18px; 
             border-radius: 20px;
             font-size: 15px; 
             line-height: 1.5;
-            text-align: left; /* Always align text left */
-            
-            /* Clean Wrapping Logic - Fixed */
+            text-align: left; 
             white-space: pre-wrap;       
             word-wrap: break-word;       
-            overflow-wrap: break-word; /* Standard wrapping */
-            word-break: normal;        /* Prevent aggressive breaking */
+            overflow-wrap: break-word; 
+            word-break: normal;        
         }
         
         .msg-row.other .bubble { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; color: var(--text-main); }
@@ -358,7 +495,7 @@
             max-height: 85vh;
         }
         
-        /* USER PROFILE MODAL (Replacing simple confirm) */
+        /* USER PROFILE MODAL */
         .profile-card-modal {
             background: #161616; border: 1px solid #333; width: 360px;
             border-radius: 24px; padding: 30px; display: flex; flex-direction: column;
@@ -398,6 +535,7 @@
         .form-label:first-child { margin-top: 0; }
         .form-input { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
         .form-textarea { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; min-height: 80px; resize: vertical; font-family: inherit; }
+        .form-select { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; font-family: inherit; cursor: pointer; }
 
         .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
         .emoji-opt { padding: 8px; background: #222; border-radius: 6px; cursor: pointer; text-align: center; font-size: 16px; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; overflow: hidden; }
@@ -545,6 +683,17 @@
                 </div>
 
                 <div id="tab-appearance" class="setting-group">
+                    <div class="form-label">Global Font</div>
+                    <select id="set-font" class="form-select" onchange="changeFont()">
+                        <option value="'Outfit', sans-serif">Outfit (Default)</option>
+                        <option value="'Inter', sans-serif">Inter</option>
+                        <option value="'Roboto', sans-serif">Roboto</option>
+                        <option value="'Lato', sans-serif">Lato</option>
+                        <option value="'Montserrat', sans-serif">Montserrat</option>
+                        <option value="'Open Sans', sans-serif">Open Sans</option>
+                        <option value="'JetBrains Mono', monospace">JetBrains Mono</option>
+                    </select>
+
                     <div class="form-label">UI Layout</div>
                     <div class="layout-grid">
                         <div class="layout-box active" id="btn-layout-desktop" onclick="setLayout('layout-desktop', this)">Desktop</div>
@@ -555,7 +704,6 @@
                         <div class="layout-box" id="btn-layout-kde" onclick="setLayout('layout-kde', this)">KDE</div>
                         <div class="layout-box" id="btn-layout-gnome" onclick="setLayout('layout-gnome', this)">Gnome</div>
                         <div class="layout-box" id="btn-layout-simplr" onclick="setLayout('layout-simplr', this)">SimplR</div>
-                        <div class="layout-box" id="btn-layout-mac" onclick="setLayout('layout-mac', this)">Mac&Cheze</div>
                     </div>
                     
                     <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
@@ -614,7 +762,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc, where } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDE4Q6lP4EMxEnjDbM9M-RsV7P4E7Ihl_U",
@@ -634,6 +782,7 @@
         let currentRoom = 'public';
         let msgUnsub = null;
         let pendingDmUser = null;
+        let openDms = [];
 
         const msgContainer = document.getElementById('msg-container');
         const msgInput = document.getElementById('msg-input');
@@ -680,6 +829,14 @@
                             glassMode = !data.preferences.glass;
                             toggleGlass(false);
                         }
+                        if(data.preferences.dms) {
+                            openDms = data.preferences.dms;
+                            refreshDmList();
+                        }
+                        if(data.preferences.font) {
+                            changeFont(data.preferences.font, false);
+                            document.getElementById('set-font').value = data.preferences.font;
+                        }
                     }
                 }
                 
@@ -698,15 +855,12 @@
             const bgColor = user.avatarColor || "#222222";
             const textColor = user.emoticonColor || "#ffffff";
 
-            // 1. Custom Photo
             if (photo && photo.length > 10) {
                 return `<div class="avatar-box ${sizeClass}"><img src="${photo}" onerror="this.style.display='none'"></div>`;
             }
-            // 2. Emoticon with Text Color
             if (emote) {
                 return `<div class="avatar-box ${sizeClass}" style="background:${bgColor}; color:${textColor};">${emote}</div>`;
             }
-            // 3. Initials
             return `<div class="avatar-box ${sizeClass}"><img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${bgColor.replace('#','')}&color=${textColor.replace('#','')}&size=64"></div>`;
         }
 
@@ -733,17 +887,31 @@
             if(msgUnsub) msgUnsub();
             msgContainer.innerHTML = '';
             
-            const q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
+            let q;
+            
+            if (currentRoom === 'public') {
+                q = query(collection(db, "messages"), orderBy("createdAt", "desc"), limit(50));
+            } else {
+                // DM Room: Fetch by ID, sort in client to avoid index need for composite
+                q = query(collection(db, "messages"), where("roomId", "==", currentRoom));
+            }
             
             msgUnsub = onSnapshot(q, (snapshot) => {
                 const msgs = [];
                 snapshot.forEach(doc => msgs.push(doc.data()));
-                msgs.reverse();
+                
+                // Sort if DM, otherwise standard reverse
+                if(currentRoom !== 'public') {
+                    msgs.sort((a,b) => (a.createdAt?.toMillis() || 0) - (b.createdAt?.toMillis() || 0));
+                } else {
+                    msgs.reverse();
+                }
                 
                 const isNearBottom = msgContainer.scrollHeight - msgContainer.scrollTop - msgContainer.clientHeight < 100;
                 msgContainer.innerHTML = ''; 
                 
                 msgs.forEach(msg => {
+                    // Double check filter for legacy data
                     if(msg.roomId === currentRoom || (!msg.roomId && currentRoom === 'public')) {
                         renderMessage(msg);
                     }
@@ -841,7 +1009,6 @@
             loadMessages();
         }
 
-        // --- NEW USER PROFILE MODAL LOGIC ---
         window.promptDm = async (uid, name) => {
             pendingDmUser = { uid, name };
             const modal = document.getElementById('user-profile-modal');
@@ -851,7 +1018,7 @@
             
             nameEl.innerText = name;
             bioEl.innerText = "Loading...";
-            avatarEl.innerHTML = ""; // Clear prev
+            avatarEl.innerHTML = ""; 
             
             modal.classList.add('active');
 
@@ -882,20 +1049,35 @@
         window.startDm = (uid, name) => {
             const ids = [currentUser.uid, uid].sort().join('_');
             const dmId = `dm_${ids}`;
+            
+            // Add to persistent list if new
+            const exists = openDms.find(d => d.id === dmId);
+            if (!exists) {
+                openDms.push({ id: dmId, name: name, uid: uid });
+                savePreferences();
+                refreshDmList();
+            }
+            
+            // Click it
+            const el = document.getElementById(`nav-${dmId}`);
+            if(el) el.click();
+        }
+
+        function refreshDmList() {
             const list = document.getElementById('dm-list');
-            if(!document.getElementById(`nav-${dmId}`)) {
+            list.innerHTML = '';
+            openDms.forEach(dm => {
                 const el = document.createElement('div');
                 el.className = 'room-item';
-                el.id = `nav-${dmId}`;
-                el.innerHTML = `<span style="color:var(--accent)">@</span> ${escapeHtml(name)}`;
+                el.id = `nav-${dm.id}`;
+                el.innerHTML = `<span style="color:var(--accent)">@</span> ${escapeHtml(dm.name)}`;
                 el.onclick = () => {
                     document.querySelectorAll('.room-item').forEach(x => x.classList.remove('active'));
                     el.classList.add('active');
-                    switchRoom(dmId, `@ ${name}`);
+                    switchRoom(dm.id, `@ ${dm.name}`);
                 }
                 list.appendChild(el);
-            }
-            document.getElementById(`nav-${dmId}`).click();
+            });
         }
 
         async function savePreferences() {
@@ -905,13 +1087,23 @@
                 layout: activeLayout,
                 bgStyle: currentBgStyle,
                 theme: currentThemeObj,
-                glass: glassMode
+                glass: glassMode,
+                dms: openDms,
+                font: currentFont
             };
             await setDoc(doc(db, "users", currentUser.uid), { preferences: prefData }, { merge: true });
         }
 
         let currentBgStyle = 'liquid';
         let currentThemeObj = null;
+        let currentFont = "'Outfit', sans-serif";
+
+        window.changeFont = (fontVal = null, save = true) => {
+            const val = fontVal || document.getElementById('set-font').value;
+            currentFont = val;
+            document.documentElement.style.setProperty('--font', val);
+            if(save) savePreferences();
+        }
 
         function updatePresence() {
             if(!currentUser) return;
@@ -1006,6 +1198,9 @@
             { bg: '#140505', accent: '#ff4400', grad: 'linear-gradient(135deg, #ff4400, #ffaa00)', b1: '#ff4400', b2: '#ffcc00' }, 
             { bg: '#000000', accent: '#00ff00', grad: 'linear-gradient(135deg, #00ff00, #005500)', b1: '#003300', b2: '#00ff00' }, 
             { bg: '#0f111a', accent: '#ff99cc', grad: 'linear-gradient(135deg, #ff99cc, #99ccff)', b1: '#ffccff', b2: '#ccffff' }, 
+            { bg: '#FDF6E3', accent: '#B58900', grad: 'linear-gradient(135deg, #FDF6E3, #EEE8D5)', b1: '#2AA198', b2: '#268BD2' }, // Solar
+            { bg: '#1A0000', accent: '#FF0000', grad: 'linear-gradient(135deg, #990000, #330000)', b1: '#660000', b2: '#330000' }, // Vampire
+            { bg: '#001A00', accent: '#00FF00', grad: 'linear-gradient(135deg, #004400, #002200)', b1: '#006600', b2: '#003300' }  // Forest
         ];
 
         const tGrid = document.getElementById('theme-options');
@@ -1031,7 +1226,10 @@
 
         window.setBg = (id, save = true) => {
             currentBgStyle = id;
-            document.querySelectorAll('.bg-layer').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.bg-layer').forEach(l => {
+                l.classList.remove('active');
+                // Use visibility for cleaner fading
+            });
 
             if(id === 'noir') {
                 document.documentElement.style.setProperty('--bg-color', '#000000');
@@ -1040,7 +1238,8 @@
             } else {
                 if(currentThemeObj) document.documentElement.style.setProperty('--bg-color', currentThemeObj.bg);
                 const el = document.getElementById('bg-'+id);
-                if(el) setTimeout(() => el.classList.add('active'), 10);
+                // Force a tiny delay to ensure transition property caches correct start state
+                if(el) setTimeout(() => el.classList.add('active'), 20);
             }
             if(save) savePreferences();
         }
