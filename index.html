@@ -40,14 +40,37 @@
         .header-btn { cursor: pointer; font-size: 14px; opacity: 0.6; transition: opacity 0.2s; }
         .header-btn:hover { opacity: 1; }
         #ygrt-chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fff; scroll-behavior: smooth; }
-        #ygrt-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f9f9f9; }
-        #ygrt-input { flex: 1; border: 1px solid #ddd; padding: 10px 15px; border-radius: 20px; font-size: 13px; outline: none; margin: 0; transition: border-color 0.2s; }
-        #ygrt-input:focus { border-color: #000; }
+        #ygrt-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px; background: #f9f9f9; position: relative; }
+        
+        #ygrt-input-container { position: relative; width: 100%; }
+        #ygrt-input { width: 100%; border: 1px solid #ddd; padding: 10px 15px; border-radius: 20px; font-size: 13px; font-family: inherit; outline: none; box-sizing: border-box; background: transparent; position: relative; z-index: 2; color: #000; }
+        
+        /* GHOST TEXT FIX: Ensure fonts and spacing match exactly */
+        #ygrt-input-ghost { position: absolute; top: 0; left: 0; width: 100%; height: 100%; padding: 11px 16px; font-size: 13px; font-family: inherit; color: transparent; pointer-events: none; white-space: pre; box-sizing: border-box; z-index: 1; line-height: normal; }
+        
         .ygrt-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-wrap: break-word; position: relative; }
         .ygrt-msg.ai { align-self: flex-start; background: #f0f0f0; color: #000; border-bottom-left-radius: 2px; }
         .ygrt-msg.user { align-self: flex-end; background: #000; color: #fff; border-bottom-right-radius: 2px; }
         .generated-img { width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; }
         .typing-cursor::after { content: ' '; display: inline-block; width: 8px; height: 14px; background: #000; margin-left: 4px; vertical-align: middle; animation: blink-caret 0.75s step-end infinite; }
+        
+        .sparkle-text {
+            font-weight: bold;
+            background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8f00ff);
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: rainbow 3s ease infinite;
+            text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 10px rgba(255,255,255,0.4);
+            display: inline-block;
+        }
+
+        @keyframes rainbow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         @keyframes blink-caret { from, to { background: transparent; } 50% { background: #000; } }
         .thinking { display: flex; gap: 4px; padding: 12px; }
         .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: dot-pulse 1.4s infinite ease-in-out both; }
@@ -101,8 +124,11 @@
                 <div class="ygrt-msg ai">Hello! I am Ygrt AI. Type "imagine [prompt]" to generate images! 🍦</div>
             </div>
             <div id="ygrt-input-area">
-                <input type="text" id="ygrt-input" placeholder="Ask Ygrt or 'imagine' something..." onkeydown="if(event.key==='Enter') sendYgrt()">
-                <button class="btn-black" style="width: auto; padding: 8px 16px;" onclick="sendYgrt()">Send</button>
+                <div id="ygrt-input-container">
+                    <div id="ygrt-input-ghost"></div>
+                    <input type="text" id="ygrt-input" placeholder="Ask Ygrt or 'imagine' something..." oninput="handleYgrtTyping()" onkeydown="if(event.key==='Enter') sendYgrt()">
+                </div>
+                <button class="btn-black" style="width: 100%; padding: 8px 16px; background: #000; color: #fff; border: none; border-radius: 20px; cursor: pointer;" onclick="sendYgrt()">Send</button>
             </div>
         </div>
     </div>
@@ -117,6 +143,30 @@
         function closeYgrt() { toggleModal('ygrt-modal', false); }
         function toggleYgrtFullscreen() { document.getElementById('ygrt-modal').classList.toggle('fullscreen'); }
         function toggleInvert() { document.documentElement.classList.toggle('inverted'); }
+
+        function handleYgrtTyping() {
+            const input = document.getElementById('ygrt-input');
+            const ghost = document.getElementById('ygrt-input-ghost');
+            const val = input.value;
+            
+            if (val.toLowerCase().startsWith('imagine')) {
+                const keyword = val.substring(0, 7);
+                const rest = val.substring(7);
+                // Make the 'imagine' keyword transparent in the REAL input so ghost shows through
+                // But keep the 'rest' of the text visible in the REAL input
+                ghost.innerHTML = `<span class="sparkle-text">${keyword}</span>`;
+                
+                // Use a trick: move the real text right by the width of 'imagine'? 
+                // Easier: set a text-indent or just hide the FIRST 7 characters of the real input
+                // Since that's hard, let's just use ghost for EVERYTHING when 'imagine' is detected
+                ghost.innerHTML = `<span class="sparkle-text">${keyword}</span><span style="color: black;">${rest}</span>`;
+                input.style.color = 'transparent'; 
+                input.style.caretColor = 'black'; // Keep caret visible
+            } else {
+                ghost.innerHTML = '';
+                input.style.color = 'inherit';
+            }
+        }
 
         async function typeMessage(element, text) {
             element.classList.add('typing-cursor');
@@ -137,15 +187,27 @@
 
         async function sendYgrt() {
             const input = document.getElementById('ygrt-input');
-            const text = input.value.trim();
-            if (!text) return;
+            const ghost = document.getElementById('ygrt-input-ghost');
+            const originalText = input.value.trim();
+            if (!originalText) return;
             const chatBox = document.getElementById('ygrt-chat-box');
             
+            input.value = '';
+            ghost.innerHTML = '';
+            input.style.color = 'inherit';
+
             const userDiv = document.createElement('div');
             userDiv.className = 'ygrt-msg user';
-            userDiv.textContent = text;
+            
+            if (originalText.toLowerCase().startsWith('imagine ')) {
+                const keyword = originalText.substring(0, 7);
+                const rest = originalText.substring(7);
+                userDiv.innerHTML = `<span class="sparkle-text">${keyword}</span>${rest}`;
+            } else {
+                userDiv.textContent = originalText;
+            }
+            
             chatBox.appendChild(userDiv);
-            input.value = '';
             chatBox.scrollTop = chatBox.scrollHeight;
 
             const thinkingDiv = document.createElement('div');
@@ -153,13 +215,35 @@
             thinkingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
             chatBox.appendChild(thinkingDiv);
 
-            // CHECK FOR IMAGE GENERATION KEYWORD
-            if (text.toLowerCase().startsWith('imagine ')) {
-                const prompt = text.replace(/imagine /i, '');
-                const apiKey = ""; // Set by environment
+            const helpTriggers = ['generate me an image', 'create an image', 'draw me', 'make an image', 'show me a picture'];
+            if (helpTriggers.some(t => originalText.toLowerCase().includes(t)) && !originalText.toLowerCase().startsWith('imagine')) {
+                chatBox.removeChild(thinkingDiv);
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'ygrt-msg ai';
+                chatBox.appendChild(aiDiv);
+                const promptGuess = originalText.split(' of ').pop() || "...";
+                await typeMessage(aiDiv, `Sure! But you need to type the command "imagine" ${promptGuess}`);
+                return;
+            }
+
+            if (originalText.toLowerCase().startsWith('imagine ')) {
+                const prompt = originalText.replace(/imagine /i, '');
+                const apiKey = ""; 
                 
+                const fetchWithRetry = async (url, options, retries = 5, backoff = 1000) => {
+                    try {
+                        const res = await fetch(url, options);
+                        if (!res.ok && retries > 0) throw new Error(res.status);
+                        return res;
+                    } catch (err) {
+                        if (retries === 0) throw err;
+                        await new Promise(r => setTimeout(r, backoff));
+                        return fetchWithRetry(url, options, retries - 1, backoff * 2);
+                    }
+                };
+
                 try {
-                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                    const response = await fetchWithRetry(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
@@ -176,21 +260,18 @@
                         img.src = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
                         aiDiv.appendChild(img);
                         chatBox.appendChild(aiDiv);
-                    } else {
-                        throw new Error("Generation failed");
-                    }
+                    } else { throw new Error(); }
                 } catch (e) {
                     if (chatBox.contains(thinkingDiv)) chatBox.removeChild(thinkingDiv);
                     const err = document.createElement('div');
                     err.className = 'ygrt-msg ai';
-                    err.textContent = "Image generation failed. Please try again.";
+                    err.textContent = "Image generation failed. Try a different prompt.";
                     chatBox.appendChild(err);
                 }
                 chatBox.scrollTop = chatBox.scrollHeight;
                 return;
             }
 
-            // Standard Groq Text Chat
             const API_KEY = "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";
             const ORG_ID = "org_01keg04x3kef3v8v1mzew41nae";
             const MODEL = "openai/gpt-oss-120b"; 
@@ -199,7 +280,7 @@
                 const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
                     method: "POST",
                     headers: { "Authorization": `Bearer ${API_KEY}`, "Groq-Organization": ORG_ID, "Content-Type": "application/json" },
-                    body: JSON.stringify({ model: MODEL, messages: [{ role: "user", content: text }], temperature: 0.7 })
+                    body: JSON.stringify({ model: MODEL, messages: [{ role: "user", content: originalText }], temperature: 0.7 })
                 });
                 const data = await response.json();
                 chatBox.removeChild(thinkingDiv);
