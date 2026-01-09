@@ -6,6 +6,8 @@
     <title>ight2 | Ultra</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet"> <!-- For TempleOS -->
     <style>
         /* --- CORE VARIABLES --- */
         :root {
@@ -25,6 +27,8 @@
             
             --radius: 20px;
             --font: 'Outfit', sans-serif;
+            --gap-size: 15px;
+            --app-max-width: 1600px;
         }
 
         /* --- GLOBAL RESET --- */
@@ -38,15 +42,136 @@
             transition: background 0.5s ease;
         }
 
-        /* --- GLASS EVERYTHING MODE --- */
-        body.glass-everything .panel {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        /* --- BACKGROUND STYLES (Fixed) --- */
+        .bg-layer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1; overflow: hidden; pointer-events: none;
+            opacity: 0; transition: opacity 0.3s ease;
+            display: none; 
         }
-        body.glass-everything .input-field { background: rgba(255, 255, 255, 0.05); }
-        body.glass-everything .msg-row.other .bubble { background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.1); }
+        .bg-layer.active { opacity: 1; display: block; }
+
+        /* Style 1: Liquid */
+        .blob {
+            position: absolute; border-radius: 50%;
+            filter: blur(80px); opacity: 0.6;
+            animation: float 10s infinite alternate ease-in-out;
+            will-change: transform;
+        }
+        .b1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--blob-color-1); animation-duration: 25s; }
+        .b2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: var(--blob-color-2); animation-duration: 30s; }
+        @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(40px, -40px); } }
+
+        /* Style 2: Aura */
+        #bg-aura { background: radial-gradient(circle at 50% 50%, var(--accent), transparent 60%); opacity: 0.4; }
+        
+        /* Style 3: Waves */
+        #bg-waves {
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 2px, transparent 2px, transparent 20px);
+            opacity: 1;
+        }
+        
+        /* Style 4: Grid */
+        #bg-grid {
+            background-size: 40px 40px;
+            background-image: linear-gradient(to right, rgba(255, 255, 255, 0.1) 1px, transparent 1px),
+                              linear-gradient(to bottom, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 60%, transparent 100%);
+        }
+
+        /* Style 5: Dots */
+        #bg-dots {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.2) 2px, transparent 2px);
+            background-size: 30px 30px;
+            opacity: 1;
+        }
+
+        /* Style 6: Mesh */
+        #bg-mesh {
+            background-color: transparent;
+            background-image: radial-gradient(at 0% 0%, var(--blob-color-1) 0px, transparent 50%),
+                        radial-gradient(at 100% 100%, var(--blob-color-2) 0px, transparent 50%);
+            opacity: 0.5;
+        }
+
+        /* Style 7: Deep */
+        #bg-deep { background: radial-gradient(circle at center, #1a1a1a 0%, #000000 100%); }
+
+        /* --- LAYOUT MODES --- */
+        
+        /* Focus: Minimalist */
+        body.layout-focus .sidebar, body.layout-focus .online-panel { display: none; }
+        body.layout-focus .app-container { max-width: 900px; padding: 0; gap: 0; }
+        body.layout-focus .panel { border-radius: 0; border: none; border-left: 1px solid #222; border-right: 1px solid #222; }
+        body.layout-focus .chat-header { justify-content: space-between; border-bottom: 1px solid #222; } /* Changed to space-between for settings icon */
+        body.layout-focus .focus-settings-btn { display: flex !important; }
+
+        /* Hyprland */
+        body.layout-hyprland { --radius: 0px; --gap-size: 20px; font-family: 'JetBrains Mono', monospace; }
+        body.layout-hyprland .panel { border: 2px solid var(--accent); background: #000; box-shadow: 8px 8px 0px rgba(255,255,255,0.1); }
+        
+        /* Laptop */
+        body.layout-laptop { font-size: 13px; --gap-size: 8px; }
+        body.layout-laptop .panel { padding: 10px; }
+        
+        /* Floaters */
+        body.layout-floaters { --gap-size: 30px; }
+        body.layout-floaters .panel { border-radius: 35px; background: rgba(20, 20, 20, 0.9); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7); border: 1px solid rgba(255,255,255,0.05); }
+
+        /* KDE Plasma */
+        body.layout-kde { --gap-size: 10px; --radius: 6px; }
+        body.layout-kde .panel { background: rgba(30, 30, 35, 0.95); box-shadow: 0 2px 10px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); }
+        body.layout-kde .app-container { padding-bottom: 0; }
+
+        /* Gnome */
+        body.layout-gnome { --gap-size: 20px; --radius: 12px; }
+        body.layout-gnome .chat-header { background: rgba(255,255,255,0.05); margin: 10px; border-radius: 8px; border: none; }
+
+        /* SimplR */
+        body.layout-simplr { --gap-size: 0; --radius: 0; }
+        body.layout-simplr .panel { background: var(--bg-color); border: none; box-shadow: none; border-right: 1px solid #222; }
+        body.layout-simplr .sidebar { border-right: 1px solid #333; }
+        
+        /* Mac&Cheze */
+        body.layout-mac { --gap-size: 20px; --radius: 16px; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+        body.layout-mac .panel { background: rgba(40,40,40,0.8); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        body.layout-mac .chat-header::before {
+            content: ''; display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+            background: #ff5f56; box-shadow: 20px 0 0 #ffbd2e, 40px 0 0 #27c93f;
+            margin-right: 50px;
+        }
+
+        /* --- TEMPLE OS MODE --- */
+        body.layout-temple {
+            --bg-color: #FFFFFF !important;
+            --text-main: #0000AA !important; /* God's Blue */
+            --glass-panel: #FFFFFF !important;
+            --glass-border: 4px double #AA0000 !important; /* God's Red */
+            --accent: #AA0000 !important;
+            --accent-grad: #AA0000 !important;
+            --text-dim: #000000 !important;
+            --radius: 0px !important;
+            --gap-size: 0px !important;
+            font-family: 'VT323', monospace !important;
+            font-size: 24px !important;
+            text-transform: uppercase;
+        }
+        body.layout-temple .bg-layer { display: none !important; }
+        body.layout-temple .panel { border-radius: 0; box-shadow: none; }
+        body.layout-temple .bubble { background: #FFFF55 !important; color: #AA0000 !important; border: 2px solid #000000; border-radius: 0; box-shadow: 4px 4px 0 #000; }
+        body.layout-temple .msg-row.me .bubble { background: #0000AA !important; color: #FFFFFF !important; }
+        body.layout-temple .input-field { background: #FFFFFF; border: 2px solid #000000; color: #0000AA; border-radius: 0; font-family: 'VT323', monospace; }
+        body.layout-temple .btn-send { border-radius: 0; background: #AA0000; border: 2px solid #000; }
+        body.layout-temple .user-avatar-sm, body.layout-temple .avatar-box { border-radius: 0; border: 2px solid #000; filter: grayscale(100%) contrast(200%); }
+        body.layout-temple .chat-header { border-bottom: 4px double #000; }
+
+        /* Glass Everything */
+        body.glass-everything .panel {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
 
         /* Scrollbar Styling */
         ::-webkit-scrollbar { width: 6px; }
@@ -54,29 +179,12 @@
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-        /* --- LIQUID BACKGROUND --- */
-        .liquid-layer {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; overflow: hidden; pointer-events: none;
-            transition: opacity 0.5s ease;
-        }
-        .liquid-layer.hidden { opacity: 0; }
-
-        .blob {
-            position: absolute; border-radius: 50%;
-            filter: blur(90px); opacity: 0.5;
-            animation: float 10s infinite alternate ease-in-out;
-            transition: background 1s ease;
-        }
-        .b1 { top: -10%; left: -10%; width: 50vw; height: 50vw; background: var(--blob-color-1); animation-duration: 25s; }
-        .b2 { bottom: -10%; right: -10%; width: 60vw; height: 60vw; background: var(--blob-color-2); animation-duration: 30s; }
-
-        @keyframes float { 0% { transform: translate(0,0); } 100% { transform: translate(40px, -40px); } }
-
         /* --- APP LAYOUT --- */
         .app-container {
             display: flex; width: 100%; height: 100%;
-            padding: 15px; gap: 15px; max-width: 1600px; margin: 0 auto;
+            padding: var(--gap-size); gap: var(--gap-size); 
+            max-width: var(--app-max-width); margin: 0 auto;
+            transition: padding 0.3s, gap 0.3s, max-width 0.3s;
         }
 
         .panel {
@@ -87,7 +195,7 @@
             display: flex; flex-direction: column;
             box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             overflow: hidden;
-            transition: background 0.3s ease, border 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         /* SIDEBAR */
@@ -121,7 +229,20 @@
             margin-top: 15px; padding: 12px; background: rgba(0,0,0,0.4);
             border-radius: 14px; display: flex; align-items: center; gap: 12px;
         }
-        .user-avatar-sm { width: 40px; height: 40px; border-radius: 10px; background: #222; object-fit: cover; }
+        
+        /* Unified Avatar Styling */
+        .avatar-box {
+            width: 40px; height: 40px; border-radius: 10px; 
+            background: #222; color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 20px; flex-shrink: 0; overflow: hidden;
+            object-fit: cover;
+        }
+        .avatar-box img { width: 100%; height: 100%; object-fit: cover; }
+        .avatar-box.sm { width: 28px; height: 28px; font-size: 14px; border-radius: 8px; }
+        .avatar-box.xs { width: 24px; height: 24px; font-size: 12px; border-radius: 6px; }
+        .avatar-box.lg { width: 80px; height: 80px; font-size: 40px; border-radius: 20px; }
+
 
         /* CHAT AREA */
         .chat-area { flex-grow: 1; min-width: 0; position: relative; }
@@ -131,18 +252,25 @@
             padding: 0 25px; font-weight: 700; font-size: 18px;
         }
 
+        /* Focus Mode Settings Button */
+        .focus-settings-btn {
+            display: none; /* Hidden by default */
+            width: 36px; height: 36px; border-radius: 50%;
+            align-items: center; justify-content: center;
+            cursor: pointer; background: rgba(255,255,255,0.05); color: #fff;
+        }
+        .focus-settings-btn:hover { background: var(--accent); }
+
         .messages-list {
             flex-grow: 1; overflow-y: scroll; padding: 25px;
             display: flex; flex-direction: column; gap: 12px;
             scroll-behavior: smooth;
         }
 
-        /* --- FIXED MESSAGE BUBBLES --- */
         .msg-row { display: flex; align-items: flex-end; gap: 12px; width: 100%; }
         .msg-row.me { flex-direction: row-reverse; }
         
         .bubble {
-            /* This is the strict fix for the wrapping glitch */
             width: fit-content; 
             max-width: 80%; 
             min-width: 0;
@@ -150,31 +278,40 @@
             border-radius: 20px;
             font-size: 15px; 
             line-height: 1.5;
-            
-            /* Text Formatting Logic */
-            white-space: pre-wrap;       /* Respects user Enter keys */
-            word-wrap: break-word;       /* Breaks long words if needed */
-            overflow-wrap: break-word;   /* Standard break behavior */
+            white-space: pre-wrap;       
+            word-wrap: break-word;       
+            overflow-wrap: anywhere; 
+            word-break: break-word;   
         }
         
         .msg-row.other .bubble { background: rgba(255,255,255,0.08); border-bottom-left-radius: 4px; color: var(--text-main); }
         .msg-row.me .bubble { background: var(--accent-grad); color: white; border-bottom-right-radius: 4px; box-shadow: 0 4px 15px rgba(255,0,85,0.2); }
-        .msg-name { font-size: 11px; color: var(--text-dim); margin-bottom: 4px; margin-left: 2px; }
+        
+        .msg-name { 
+            font-size: 11px; color: var(--text-dim); margin-bottom: 4px; margin-left: 2px; 
+            cursor: pointer; transition: color 0.2s;
+        }
+        .msg-name:hover { color: var(--accent); }
         .msg-row.me .msg-name { display: none; }
+        
+        .msg-avatar-click { cursor: pointer; transition: transform 0.2s; }
+        .msg-avatar-click:hover { transform: scale(1.1); filter: brightness(1.2); }
 
         /* INPUT */
-        .input-wrapper { padding: 20px; border-top: var(--glass-border); display: flex; gap: 10px; }
+        .input-wrapper { padding: 20px; border-top: var(--glass-border); display: flex; gap: 10px; flex-direction: column; }
+        .input-bar { display: flex; gap: 10px; width: 100%; }
         .input-field {
             flex-grow: 1; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
             border-radius: 50px; padding: 12px 20px; color: white; font-family: inherit; font-size: 15px;
             transition: 0.3s;
         }
         .input-field:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(255,0,85,0.2); }
+        .char-counter { font-size: 10px; color: var(--text-dim); text-align: right; margin-right: 10px; }
         
         .btn-send {
             width: 46px; height: 46px; border-radius: 50%; background: var(--accent);
             border: none; color: white; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: 0.2s;
+            cursor: pointer; transition: 0.2s; flex-shrink: 0;
         }
         .btn-send:hover { transform: scale(1.1); }
 
@@ -185,7 +322,6 @@
             cursor: pointer; transition: 0.2s; position: relative;
         }
         .online-item:hover { background: var(--glass-highlight); }
-        .status-dot { width: 8px; height: 8px; background: #00ff88; border-radius: 50%; box-shadow: 0 0 5px #00ff88; }
         
         .dm-icon-indicator {
             opacity: 0; transform: translateX(-5px); transition: 0.2s; color: var(--accent);
@@ -202,21 +338,29 @@
         .overlay.active { display: flex; opacity: 1; }
 
         .settings-card {
-            background: #111; border: 1px solid #333; width: 450px; max-width: 90%;
+            background: #111; border: 1px solid #333; width: 500px; max-width: 90%;
             border-radius: 24px; overflow: hidden; display: flex; flex-direction: column;
             box-shadow: 0 25px 60px rgba(0,0,0,0.6);
             max-height: 85vh;
         }
         
-        /* CONFIRM DM MODAL */
-        .confirm-card {
-            background: #161616; border: 1px solid #333; width: 320px;
-            border-radius: 20px; padding: 25px; text-align: center;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+        /* USER PROFILE MODAL (Replacing simple confirm) */
+        .profile-card-modal {
+            background: #161616; border: 1px solid #333; width: 360px;
+            border-radius: 24px; padding: 30px; display: flex; flex-direction: column;
+            align-items: center; box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+            position: relative;
         }
-        .confirm-btn-row { display: flex; gap: 10px; margin-top: 20px; justify-content: center; }
-        .btn-cancel { padding: 10px 20px; background: #333; border-radius: 8px; color: white; border: none; cursor: pointer; }
-        .btn-confirm { padding: 10px 20px; background: var(--accent); border-radius: 8px; color: white; border: none; cursor: pointer; font-weight: bold; }
+        .profile-card-close { position: absolute; top: 15px; right: 15px; cursor: pointer; color: #666; }
+        .profile-card-close:hover { color: #fff; }
+        
+        .profile-card-avatar { margin-bottom: 15px; }
+        .profile-card-name { font-size: 22px; font-weight: 800; color: white; margin-bottom: 5px; }
+        .profile-card-bio { font-size: 14px; color: #aaa; text-align: center; margin-bottom: 25px; line-height: 1.4; max-height: 100px; overflow-y: auto; width: 100%; padding: 0 10px; }
+        
+        .confirm-btn-row { display: flex; gap: 10px; width: 100%; }
+        .btn-cancel { flex: 1; padding: 12px; background: #333; border-radius: 12px; color: white; border: none; cursor: pointer; font-weight: 600; }
+        .btn-confirm { flex: 1; padding: 12px; background: var(--accent); border-radius: 12px; color: white; border: none; cursor: pointer; font-weight: 800; }
 
         .modal-header { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
         .modal-title { font-size: 20px; font-weight: 700; color: white; }
@@ -236,38 +380,54 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Canvas */
-        .canvas-container { display: flex; justify-content: center; margin-bottom: 15px; }
-        canvas { border: 2px solid #333; border-radius: 8px; cursor: crosshair; image-rendering: pixelated; touch-action: none; }
-        
-        .color-row { display: flex; gap: 8px; justify-content: center; margin-bottom: 15px; flex-wrap: wrap;}
-        .p-color { width: 28px; height: 28px; border-radius: 6px; cursor: pointer; border: 1px solid #444; }
-        .p-color.selected { border-color: white; transform: scale(1.15); box-shadow: 0 0 10px white; }
+        .form-label { display: block; color: #888; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; margin-top: 15px; }
+        .form-label:first-child { margin-top: 0; }
+        .form-input { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; }
+        .form-textarea { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 10px; min-height: 80px; resize: vertical; font-family: inherit; }
 
-        .form-label { display: block; color: #888; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-bottom: 8px; }
-        .form-input { width: 100%; background: #222; border: 1px solid #333; color: white; padding: 12px; border-radius: 8px; margin-bottom: 20px; }
+        .emoji-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 20px; }
+        .emoji-opt { padding: 8px; background: #222; border-radius: 6px; cursor: pointer; text-align: center; font-size: 16px; transition: 0.2s; border: 1px solid transparent; white-space: nowrap; overflow: hidden; }
+        .emoji-opt:hover { background: #333; }
+        .emoji-opt.selected { border-color: var(--accent); background: rgba(255,0,85,0.1); }
 
         .btn-primary { width: 100%; padding: 14px; background: var(--accent); border: none; color: white; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .btn-primary:hover { filter: brightness(1.1); }
 
-        .theme-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 20px; }
         .theme-box { height: 45px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; position: relative; overflow: hidden; }
         .theme-box.active { border-color: white; transform: scale(1.05); }
 
+        .layout-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .layout-box { padding: 10px; background: #222; border-radius: 8px; cursor: pointer; text-align: center; font-size: 12px; border: 1px solid transparent; transition: 0.2s; }
+        .layout-box:hover { background: #333; }
+        .layout-box.active { border-color: var(--accent); background: rgba(255,0,85,0.1); color: white; }
+
+        .color-maker-row { display: flex; gap: 10px; margin-bottom: 10px; }
+        .color-input-group { flex: 1; }
+        .color-picker { width: 100%; height: 40px; border: none; padding: 0; background: none; cursor: pointer; }
+
         @media (max-width: 850px) {
             .sidebar, .online-panel { display: none; } 
-            .app-container { padding: 0; }
+            .app-container { padding: 0; max-width: 100%; }
             .panel { border-radius: 0; border: none; }
             .chat-header { padding: 0 15px; }
+            .focus-settings-btn { display: flex !important; }
         }
     </style>
 </head>
-<body>
+<body class="layout-desktop">
 
-    <div class="liquid-layer" id="liquid-bg">
+    <!-- BACKGROUND LAYERS -->
+    <div class="bg-layer active" id="bg-liquid">
         <div class="blob b1"></div>
         <div class="blob b2"></div>
     </div>
+    <div class="bg-layer" id="bg-aura"></div>
+    <div class="bg-layer" id="bg-waves"></div>
+    <div class="bg-layer" id="bg-grid"></div>
+    <div class="bg-layer" id="bg-dots"></div>
+    <div class="bg-layer" id="bg-mesh"></div>
+    <div class="bg-layer" id="bg-deep"></div>
 
     <div class="app-container">
         <div class="panel sidebar">
@@ -290,8 +450,8 @@
             </div>
 
             <div class="user-mini-card">
-                <img id="my-avatar" class="user-avatar-sm" src="" onerror="this.src='https://ui-avatars.com/api/?name=User&background=333&color=fff'">
-                <div style="flex-grow:1; overflow:hidden;">
+                <div id="my-avatar-container" class="avatar-box"></div>
+                <div style="flex-grow:1; overflow:hidden; margin-left:12px;">
                     <div id="my-name" style="font-weight:700; font-size:14px;">Loading...</div>
                     <div style="font-size:11px; color:#888;">Online</div>
                 </div>
@@ -301,16 +461,23 @@
         <div class="panel chat-area">
             <div class="chat-header">
                 <span id="header-title">#public</span>
+                <!-- Settings Button for Focus Mode -->
+                <div class="focus-settings-btn" onclick="openSettings()">
+                    <svg class="icon-svg" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.04.17 0 .34.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 0 0-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.58 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.04-.22 0-.45-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+                </div>
                 <span id="online-count" style="font-size:12px; color:var(--accent);">0 online</span>
             </div>
 
             <div class="messages-list" id="msg-container"></div>
 
             <div class="input-wrapper">
-                <input type="text" id="msg-input" class="input-field" placeholder="Type a message..." autocomplete="off">
-                <button class="btn-send" id="btn-send">
-                    <svg style="width:20px;height:20px;fill:currentColor;transform:translateX(2px)" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-                </button>
+                <div class="input-bar">
+                    <input type="text" id="msg-input" class="input-field" placeholder="Type a message..." autocomplete="off" maxlength="200">
+                    <button class="btn-send" id="btn-send">
+                        <svg style="width:20px;height:20px;fill:currentColor;transform:translateX(2px)" viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                    </button>
+                </div>
+                <div class="char-counter" id="char-count">0/200</div>
             </div>
         </div>
 
@@ -337,23 +504,65 @@
                     <div class="form-label">Display Name</div>
                     <input type="text" id="set-username" class="form-input" placeholder="Your username">
                     
-                    <div class="form-label" style="margin-bottom:10px;">Draw Avatar (32x32)</div>
-                    <div class="canvas-container">
-                        <canvas id="pfp-canvas" width="320" height="320"></canvas>
-                    </div>
-                    <div class="color-row" id="palette"></div>
+                    <div class="form-label">Avatar Image URL</div>
+                    <input type="text" id="set-avatar" class="form-input" placeholder="https://...">
                     
+                    <div class="color-maker-row">
+                        <div class="color-input-group">
+                            <div class="form-label">Avatar Background</div>
+                            <input type="color" id="set-avatar-color" class="form-input" value="#222222" style="height:50px; cursor:pointer;">
+                        </div>
+                        <div class="color-input-group">
+                            <div class="form-label">Emoticon Color</div>
+                            <input type="color" id="set-emote-color" class="form-input" value="#ffffff" style="height:50px; cursor:pointer;">
+                        </div>
+                    </div>
+
+                    <div class="form-label">Profile Bio</div>
+                    <textarea id="set-bio" class="form-textarea" placeholder="Write something about yourself..."></textarea>
+
+                    <div class="form-label">Avatar Emoticon (Overrides Initials)</div>
+                    <div class="emoji-grid" id="emoji-picker">
+                        <!-- Emojis generated by JS -->
+                    </div>
+                    <div style="font-size:10px; color:#666; margin-bottom:15px;">Note: Emoticons are used if no Custom Image is set.</div>
+
                     <button class="btn-primary" onclick="saveProfile()">Save Profile</button>
                 </div>
 
                 <div id="tab-appearance" class="setting-group">
-                    <div class="form-label">Color Theme</div>
+                    <div class="form-label">UI Layout</div>
+                    <div class="layout-grid">
+                        <div class="layout-box active" id="btn-layout-desktop" onclick="setLayout('layout-desktop', this)">Desktop</div>
+                        <div class="layout-box" id="btn-layout-laptop" onclick="setLayout('layout-laptop', this)">Laptop</div>
+                        <div class="layout-box" id="btn-layout-focus" onclick="setLayout('layout-focus', this)">Focus</div>
+                        <div class="layout-box" id="btn-layout-hyprland" onclick="setLayout('layout-hyprland', this)">Hyprland</div>
+                        <div class="layout-box" id="btn-layout-floaters" onclick="setLayout('layout-floaters', this)">Floaters</div>
+                        <div class="layout-box" id="btn-layout-kde" onclick="setLayout('layout-kde', this)">KDE</div>
+                        <div class="layout-box" id="btn-layout-gnome" onclick="setLayout('layout-gnome', this)">Gnome</div>
+                        <div class="layout-box" id="btn-layout-simplr" onclick="setLayout('layout-simplr', this)">SimplR</div>
+                        <div class="layout-box" id="btn-layout-mac" onclick="setLayout('layout-mac', this)">Mac&Cheze</div>
+                    </div>
+                    
+                    <div style="margin-top:10px; border-top:1px solid #333; padding-top:10px;">
+                        <button class="btn-primary" style="background:#AA0000; border:2px solid #FF0000;" onclick="enableTempleOS()">ENABLE TEMPLE OS MODE</button>
+                    </div>
+
+                    <div class="form-label">Theme Presets</div>
                     <div class="theme-grid" id="theme-options"></div>
 
-                    <div class="form-label" style="margin-top:20px;">Visual Effects</div>
-                    <div class="room-item" style="background:#222; justify-content:space-between; margin-bottom:10px;" onclick="toggleLiquid()">
-                        <span>Liquid Background</span>
-                        <span id="liquid-status" style="color:var(--accent); font-weight:700;">ON</span>
+                    <div class="form-label">Visual Effects</div>
+                    <div class="form-label" style="margin-top:0; font-size:10px; color:#666;">Background Style</div>
+                    <div class="layout-grid" style="grid-template-columns: repeat(3, 1fr); gap: 5px; margin-bottom:15px;">
+                        <div class="layout-box" id="btn-bg-liquid" onclick="setBg('liquid')">Liquid</div>
+                        <div class="layout-box" id="btn-bg-aura" onclick="setBg('aura')">Aura</div>
+                        <div class="layout-box" id="btn-bg-waves" onclick="setBg('waves')">Waves</div>
+                        <div class="layout-box" id="btn-bg-grid" onclick="setBg('grid')">Grid</div>
+                        <div class="layout-box" id="btn-bg-dots" onclick="setBg('dots')">Dots</div>
+                        <div class="layout-box" id="btn-bg-mesh" onclick="setBg('mesh')">Mesh</div>
+                        <div class="layout-box" id="btn-bg-simple" onclick="setBg('simple')">Simple</div>
+                        <div class="layout-box" id="btn-bg-noir" onclick="setBg('noir')">Noir</div>
+                        <div class="layout-box" id="btn-bg-deep" onclick="setBg('deep')">Deep</div>
                     </div>
 
                     <div class="room-item" style="background:#222; justify-content:space-between;" onclick="toggleGlass()">
@@ -365,13 +574,25 @@
         </div>
     </div>
 
-    <div class="overlay" id="dm-confirm-modal">
-        <div class="confirm-card">
-            <h3 style="margin:0 0 10px 0; color:white;">Start Chat?</h3>
-            <p style="color:#888; font-size:14px; margin-bottom:20px;">Open a Direct Message with <span id="dm-target-name" style="color:white; font-weight:bold;">User</span>?</p>
+    <!-- USER PROFILE MODAL -->
+    <div class="overlay" id="user-profile-modal">
+        <div class="profile-card-modal">
+            <div class="profile-card-close" onclick="closeUserProfile()">&times;</div>
+            <div class="profile-card-avatar" id="up-avatar"></div>
+            <div class="profile-card-name" id="up-name">User</div>
+            <div class="profile-card-bio" id="up-bio">No bio available.</div>
+            <button class="btn-primary" id="up-msg-btn">Send Message</button>
+        </div>
+    </div>
+
+    <!-- TEMPLE OS WARNING -->
+    <div class="overlay" id="temple-warning">
+        <div class="confirm-card" style="border: 2px solid red;">
+            <h3 style="color:red; font-family:'Courier New'; text-transform:uppercase;">WARNING</h3>
+            <p>THIS MODE IS VERY WEIRD BE AWARE.</p>
             <div class="confirm-btn-row">
-                <button class="btn-cancel" onclick="closeDmConfirm()">Cancel</button>
-                <button class="btn-confirm" onclick="confirmDmStart()">Open DM</button>
+                <button class="btn-cancel" onclick="document.getElementById('temple-warning').classList.remove('active')">Cancel</button>
+                <button class="btn-confirm" style="background:red;" onclick="confirmTempleOS()">I AM READY</button>
             </div>
         </div>
     </div>
@@ -379,7 +600,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, limit, onSnapshot, serverTimestamp, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDE4Q6lP4EMxEnjDbM9M-RsV7P4E7Ihl_U",
@@ -395,18 +616,59 @@
         const db = getFirestore(app);
 
         let currentUser = null;
+        let currentUserData = { bio: "", emoticon: "", avatarColor: "#222222", emoticonColor: "#ffffff" }; 
         let currentRoom = 'public';
         let msgUnsub = null;
         let pendingDmUser = null;
 
         const msgContainer = document.getElementById('msg-container');
         const msgInput = document.getElementById('msg-input');
+        const charCount = document.getElementById('char-count');
         const sendBtn = document.getElementById('btn-send');
 
-        onAuthStateChanged(auth, (user) => {
+        // Emojis & Emoticons
+        const emojis = ["😀", "😎", "👾", "🤖", "👻", "👽", "💩", "🔥", "✨", "💤", "👑", "💎", "🎮", "💻", "🚀", "🍕", "( ͡° ͜ʖ ͡°)", "¯\\_(ツ)_/¯", "ಠ_ಠ", "uwu", "^_^", ":)"];
+
+        // Init Emoji Picker
+        const emojiPicker = document.getElementById('emoji-picker');
+        let selectedEmoji = "";
+        emojis.forEach(e => {
+            const div = document.createElement('div');
+            div.className = 'emoji-opt';
+            div.innerText = e;
+            div.onclick = () => {
+                document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
+                div.classList.add('selected');
+                selectedEmoji = e;
+            };
+            emojiPicker.appendChild(div);
+        });
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
-                if(!user.displayName) updateProfile(user, { displayName: `User${user.uid.slice(0,4)}` });
+                if(!user.displayName) await updateProfile(user, { displayName: `User${user.uid.slice(0,4)}` });
+                
+                // LOAD PERSISTENT SETTINGS
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+                if(userDoc.exists()) {
+                    const data = userDoc.data();
+                    currentUserData.bio = data.bio || "";
+                    currentUserData.emoticon = data.emoticon || "";
+                    currentUserData.avatarColor = data.avatarColor || "#222222";
+                    currentUserData.emoticonColor = data.emoticonColor || "#ffffff";
+                    
+                    if(data.preferences) {
+                        if(data.preferences.theme) applyTheme(data.preferences.theme, false);
+                        if(data.preferences.layout) setLayout(data.preferences.layout, document.getElementById('btn-' + data.preferences.layout), false);
+                        if(data.preferences.bgStyle) setBg(data.preferences.bgStyle, false);
+                        if(data.preferences.glass !== undefined) {
+                            glassMode = !data.preferences.glass;
+                            toggleGlass(false);
+                        }
+                    }
+                }
+                
                 updateMyUI();
                 startApp();
             } else {
@@ -414,9 +676,36 @@
             }
         });
 
+        // --- UPDATED AVATAR LOGIC ---
+        function getAvatarHTML(user, sizeClass='') {
+            const photo = user.photoURL;
+            const emote = user.emoticon;
+            const name = user.displayName || "User";
+            const bgColor = user.avatarColor || "#222222";
+            const textColor = user.emoticonColor || "#ffffff";
+
+            // 1. Custom Photo
+            if (photo && photo.length > 10) {
+                return `<div class="avatar-box ${sizeClass}"><img src="${photo}" onerror="this.style.display='none'"></div>`;
+            }
+            // 2. Emoticon with Text Color
+            if (emote) {
+                return `<div class="avatar-box ${sizeClass}" style="background:${bgColor}; color:${textColor};">${emote}</div>`;
+            }
+            // 3. Initials
+            return `<div class="avatar-box ${sizeClass}"><img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=${bgColor.replace('#','')}&color=${textColor.replace('#','')}&size=64"></div>`;
+        }
+
         function updateMyUI() {
             document.getElementById('my-name').innerText = currentUser.displayName;
-            document.getElementById('my-avatar').src = getValidAvatar(currentUser.photoURL, currentUser.displayName);
+            const renderUser = { 
+                photoURL: currentUser.photoURL, 
+                emoticon: currentUserData.emoticon, 
+                displayName: currentUser.displayName,
+                avatarColor: currentUserData.avatarColor,
+                emoticonColor: currentUserData.emoticonColor
+            };
+            document.getElementById('my-avatar-container').innerHTML = getAvatarHTML(renderUser);
         }
 
         function startApp() {
@@ -452,42 +741,77 @@
             });
         }
 
+        let lastMsgTime = 0;
+        const cooldownTime = 2000;
+
+        msgInput.addEventListener('input', () => {
+            charCount.innerText = `${msgInput.value.length}/200`;
+        });
+
         async function sendMessage() {
+            const now = Date.now();
+            if(now - lastMsgTime < cooldownTime) return;
+
             const text = msgInput.value.trim();
             if(!text || !currentUser) return;
+            
+            lastMsgTime = now;
             msgInput.value = '';
+            charCount.innerText = "0/200";
             msgContainer.scrollTop = msgContainer.scrollHeight;
 
             try {
                 await addDoc(collection(db, "messages"), {
-                    text: text, uid: currentUser.uid, displayName: currentUser.displayName,
-                    photoURL: currentUser.photoURL || null, roomId: currentRoom, createdAt: serverTimestamp()
+                    text: text, 
+                    uid: currentUser.uid, 
+                    displayName: currentUser.displayName,
+                    photoURL: currentUser.photoURL || null, 
+                    emoticon: currentUserData.emoticon || "",
+                    avatarColor: currentUserData.avatarColor || "#222222",
+                    emoticonColor: currentUserData.emoticonColor || "#ffffff",
+                    roomId: currentRoom, 
+                    createdAt: serverTimestamp()
                 });
             } catch(e) { console.error(e); }
         }
 
         sendBtn.onclick = sendMessage;
-        
-        // --- INPUT FIX FOR NEWLINES (SHIFT+ENTER) ---
         msgInput.addEventListener('keydown', (e) => {
-            if(e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault(); // Prevent default newline
-                sendMessage();
-            }
+            if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
         });
 
         function renderMessage(msg) {
             const isMe = msg.uid === currentUser.uid;
             const div = document.createElement('div');
             div.className = `msg-row ${isMe ? 'me' : 'other'}`;
+            
+            let avatarHtml = '';
+            let nameHtml = '';
+            
+            if(!isMe) {
+                const avatarStr = getAvatarHTML(msg, 'sm');
+                avatarHtml = `<div class="msg-avatar-click">${avatarStr}</div>`;
+                nameHtml = `<div class="msg-name">${escapeHtml(msg.displayName)}</div>`;
+            }
+
             div.innerHTML = `
-                ${!isMe ? `<img src="${getValidAvatar(msg.photoURL, msg.displayName)}" class="user-avatar-sm" style="width:28px;height:28px;">` : ''}
+                ${avatarHtml}
                 <div>
-                    ${!isMe ? `<div class="msg-name">${escapeHtml(msg.displayName)}</div>` : ''}
+                    ${nameHtml}
                     <div class="bubble">${escapeHtml(msg.text)}</div>
                 </div>
             `;
+            
             msgContainer.appendChild(div);
+
+            if(!isMe) {
+                const avatarEl = div.querySelector('.msg-avatar-click');
+                const nameEl = div.querySelector('.msg-name');
+                const clickHandler = () => promptDm(msg.uid, msg.displayName);
+                
+                if(avatarEl) avatarEl.onclick = clickHandler;
+                if(nameEl) nameEl.onclick = clickHandler;
+            }
         }
 
         window.switchRoom = (id, name) => {
@@ -503,23 +827,43 @@
             loadMessages();
         }
 
-        window.promptDm = (uid, name) => {
+        // --- NEW USER PROFILE MODAL LOGIC ---
+        window.promptDm = async (uid, name) => {
             pendingDmUser = { uid, name };
-            document.getElementById('dm-target-name').innerText = name;
-            document.getElementById('dm-confirm-modal').classList.add('active');
-        }
+            const modal = document.getElementById('user-profile-modal');
+            const avatarEl = document.getElementById('up-avatar');
+            const nameEl = document.getElementById('up-name');
+            const bioEl = document.getElementById('up-bio');
+            
+            nameEl.innerText = name;
+            bioEl.innerText = "Loading...";
+            avatarEl.innerHTML = ""; // Clear prev
+            
+            modal.classList.add('active');
 
-        window.closeDmConfirm = () => {
-            document.getElementById('dm-confirm-modal').classList.remove('active');
+            try {
+                const userDoc = await getDoc(doc(db, "users", uid));
+                if(userDoc.exists()) {
+                    const data = userDoc.data();
+                    avatarEl.innerHTML = getAvatarHTML(data, 'lg');
+                    bioEl.innerText = data.bio || "No bio available.";
+                } else {
+                    bioEl.innerText = "User details not found.";
+                }
+            } catch(e) { console.error(e); }
+        };
+
+        window.closeUserProfile = () => {
+            document.getElementById('user-profile-modal').classList.remove('active');
             pendingDmUser = null;
         }
 
-        window.confirmDmStart = () => {
-            if(pendingDmUser) {
+        document.getElementById('up-msg-btn').onclick = () => {
+             if(pendingDmUser) {
                 startDm(pendingDmUser.uid, pendingDmUser.name);
-                closeDmConfirm();
+                closeUserProfile();
             }
-        }
+        };
 
         window.startDm = (uid, name) => {
             const ids = [currentUser.uid, uid].sort().join('_');
@@ -540,9 +884,32 @@
             document.getElementById(`nav-${dmId}`).click();
         }
 
+        async function savePreferences() {
+            if(!currentUser) return;
+            const activeLayout = document.querySelector('.layout-box.active')?.id.replace('btn-', '') || 'layout-desktop';
+            const prefData = {
+                layout: activeLayout,
+                bgStyle: currentBgStyle,
+                theme: currentThemeObj,
+                glass: glassMode
+            };
+            await setDoc(doc(db, "users", currentUser.uid), { preferences: prefData }, { merge: true });
+        }
+
+        let currentBgStyle = 'liquid';
+        let currentThemeObj = null;
+
         function updatePresence() {
+            if(!currentUser) return;
             setDoc(doc(db, "users", currentUser.uid), {
-                uid: currentUser.uid, displayName: currentUser.displayName, photoURL: currentUser.photoURL || null, lastSeen: serverTimestamp()
+                uid: currentUser.uid, 
+                displayName: currentUser.displayName, 
+                photoURL: currentUser.photoURL || null, 
+                lastSeen: serverTimestamp(),
+                bio: currentUserData.bio, 
+                emoticon: currentUserData.emoticon,
+                avatarColor: currentUserData.avatarColor,
+                emoticonColor: currentUserData.emoticonColor
             }, { merge: true });
         }
 
@@ -557,15 +924,17 @@
                     const u = d.data();
                     if(uniqueIds.has(u.uid)) return;
                     uniqueIds.add(u.uid);
+                    
                     const now = new Date();
                     const seen = u.lastSeen ? u.lastSeen.toDate() : new Date(0);
                     if((now - seen)/1000/60 < 5 && u.uid !== currentUser.uid) {
                         count++;
                         const el = document.createElement('div');
                         el.className = 'online-item';
+                        
                         el.innerHTML = `
-                            <img src="${getValidAvatar(u.photoURL, u.displayName)}" style="width:24px;height:24px;border-radius:6px;">
-                            <span style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(u.displayName)}</span>
+                            ${getAvatarHTML(u, 'xs')}
+                            <span style="font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-left:5px;">${escapeHtml(u.displayName)}</span>
                             <div style="flex-grow:1"></div>
                             <svg class="dm-icon-indicator" style="width:16px;height:16px;" viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
                         `;
@@ -577,12 +946,14 @@
             });
         }
 
-        // --- FIXED CANVAS LOGIC ---
         window.openSettings = () => {
             document.getElementById('main-modal').classList.add('active');
             document.getElementById('set-username').value = currentUser.displayName;
-            // Redraw background to prevent blank
-            ctx.fillStyle = "#000"; ctx.fillRect(0,0,320,320);
+            document.getElementById('set-avatar').value = currentUser.photoURL || "";
+            document.getElementById('set-avatar-color').value = currentUserData.avatarColor || "#222222";
+            document.getElementById('set-emote-color').value = currentUserData.emoticonColor || "#ffffff";
+            document.getElementById('set-bio').value = currentUserData.bio || "";
+            document.querySelectorAll('.emoji-opt').forEach(el => el.classList.remove('selected'));
         }
         window.closeSettings = () => document.getElementById('main-modal').classList.remove('active');
         
@@ -594,57 +965,35 @@
             document.querySelectorAll('.tab-btn')[index].classList.add('active');
         }
 
-        const cvs = document.getElementById('pfp-canvas');
-        const ctx = cvs.getContext('2d');
-        const SCALE = 10;
-        let paint = false;
-        let color = '#ff0055';
-        
-        const palette = ['#000', '#fff', '#ff0055', '#00ccff', '#00ff88', '#ffaa00', '#555'];
-        const pDiv = document.getElementById('palette');
-        palette.forEach(c => {
-            const d = document.createElement('div');
-            d.className = 'p-color';
-            d.style.background = c;
-            d.onclick = () => {
-                color = c;
-                document.querySelectorAll('.p-color').forEach(x => x.classList.remove('selected'));
-                d.classList.add('selected');
-            }
-            pDiv.appendChild(d);
-        });
-
-        // The Fix: Use getBoundingClientRect for accurate coordinates
-        function draw(e) {
-            const rect = cvs.getBoundingClientRect();
-            // Calculate scale in case canvas display size differs from internal size
-            const scaleX = cvs.width / rect.width;
-            const scaleY = cvs.height / rect.height;
-            
-            // Get mouse position relative to canvas
-            const x = (e.clientX - rect.left) * scaleX;
-            const y = (e.clientY - rect.top) * scaleY;
-            
-            ctx.fillStyle = color;
-            ctx.fillRect(Math.floor(x/SCALE)*SCALE, Math.floor(y/SCALE)*SCALE, SCALE, SCALE);
-        }
-
-        cvs.addEventListener('mousedown', (e) => { paint = true; draw(e); });
-        cvs.addEventListener('mousemove', (e) => { if(paint) draw(e); });
-        window.addEventListener('mouseup', () => paint = false);
-
         window.saveProfile = async () => {
             const newName = document.getElementById('set-username').value;
-            const newPfp = cvs.toDataURL();
-            await updateProfile(currentUser, { displayName: newName, photoURL: newPfp });
-            updateMyUI(); updatePresence(); closeSettings();
+            const newAvatar = document.getElementById('set-avatar').value;
+            const newBio = document.getElementById('set-bio').value;
+            const newColor = document.getElementById('set-avatar-color').value;
+            const newEmoteColor = document.getElementById('set-emote-color').value;
+            
+            await updateProfile(currentUser, { displayName: newName, photoURL: newAvatar });
+            
+            currentUserData.bio = newBio;
+            currentUserData.avatarColor = newColor;
+            currentUserData.emoticonColor = newEmoteColor;
+            if(selectedEmoji) currentUserData.emoticon = selectedEmoji;
+            
+            updatePresence();
+            updateMyUI(); 
+            closeSettings();
         }
 
         const themes = [
             { bg: '#050505', accent: '#ff0055', grad: 'linear-gradient(135deg, #ff0055, #ff00cc)', b1: '#ff00cc', b2: '#00ccff' },
             { bg: '#000510', accent: '#00ccff', grad: 'linear-gradient(135deg, #00ccff, #0055ff)', b1: '#0055ff', b2: '#00ccff' },
             { bg: '#051005', accent: '#00ff88', grad: 'linear-gradient(135deg, #00ff88, #009944)', b1: '#00ff88', b2: '#ccff00' },
+            { bg: '#0f0514', accent: '#a100ff', grad: 'linear-gradient(135deg, #a100ff, #ff00cc)', b1: '#a100ff', b2: '#4a00e0' }, 
+            { bg: '#140505', accent: '#ff4400', grad: 'linear-gradient(135deg, #ff4400, #ffaa00)', b1: '#ff4400', b2: '#ffcc00' }, 
+            { bg: '#000000', accent: '#00ff00', grad: 'linear-gradient(135deg, #00ff00, #005500)', b1: '#003300', b2: '#00ff00' }, 
+            { bg: '#0f111a', accent: '#ff99cc', grad: 'linear-gradient(135deg, #ff99cc, #99ccff)', b1: '#ffccff', b2: '#ccffff' }, 
         ];
+
         const tGrid = document.getElementById('theme-options');
         themes.forEach(t => {
             const d = document.createElement('div');
@@ -652,27 +1001,64 @@
             d.style.background = t.bg;
             d.style.borderTop = `4px solid ${t.accent}`;
             d.innerHTML = `<div style="position:absolute; bottom:-5px; right:-5px; width:20px; height:20px; background:${t.b1}; border-radius:50%; filter:blur(5px);"></div>`;
-            d.onclick = () => {
-                document.documentElement.style.setProperty('--bg-color', t.bg);
-                document.documentElement.style.setProperty('--accent', t.accent);
-                document.documentElement.style.setProperty('--accent-grad', t.grad);
-                document.documentElement.style.setProperty('--blob-color-1', t.b1);
-                document.documentElement.style.setProperty('--blob-color-2', t.b2);
-            }
+            d.onclick = () => applyTheme(t);
             tGrid.appendChild(d);
         });
 
-        let liquidOn = true;
-        window.toggleLiquid = () => {
-            liquidOn = !liquidOn;
-            const el = document.getElementById('liquid-bg');
-            const txt = document.getElementById('liquid-status');
-            if(liquidOn) { el.classList.remove('hidden'); txt.innerText = "ON"; }
-            else { el.classList.add('hidden'); txt.innerText = "OFF"; }
+        function applyTheme(t, save = true) {
+            currentThemeObj = t;
+            document.documentElement.style.setProperty('--bg-color', t.bg);
+            document.documentElement.style.setProperty('--accent', t.accent);
+            document.documentElement.style.setProperty('--accent-grad', t.grad);
+            document.documentElement.style.setProperty('--blob-color-1', t.b1);
+            document.documentElement.style.setProperty('--blob-color-2', t.b2);
+            if(save) savePreferences();
+        }
+
+        window.setBg = (id, save = true) => {
+            currentBgStyle = id;
+            document.querySelectorAll('.bg-layer').forEach(l => l.classList.remove('active'));
+
+            if(id === 'noir') {
+                document.documentElement.style.setProperty('--bg-color', '#000000');
+            } else if(id === 'simple') {
+                 if(currentThemeObj) document.documentElement.style.setProperty('--bg-color', currentThemeObj.bg);
+            } else {
+                if(currentThemeObj) document.documentElement.style.setProperty('--bg-color', currentThemeObj.bg);
+                const el = document.getElementById('bg-'+id);
+                if(el) setTimeout(() => el.classList.add('active'), 10);
+            }
+            if(save) savePreferences();
+        }
+
+        // --- TEMPLE OS LOGIC ---
+        window.enableTempleOS = () => {
+            document.getElementById('temple-warning').classList.add('active');
+        }
+
+        window.confirmTempleOS = () => {
+            document.getElementById('temple-warning').classList.remove('active');
+            // Force layout manually first to clear other stuff
+            setLayout('layout-temple', null, true);
+        }
+
+        window.setLayout = (layoutClass, btn, save = true) => {
+            document.body.className = ''; 
+            if(document.getElementById('glass-status').innerText === "ON") document.body.classList.add('glass-everything');
+            
+            document.body.classList.add(layoutClass);
+            
+            document.querySelectorAll('.layout-box').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active'); 
+            else {
+               const b = document.getElementById('btn-' + layoutClass);
+               if(b) b.classList.add('active');
+            }
+            if(save) savePreferences();
         }
 
         let glassMode = false;
-        window.toggleGlass = () => {
+        window.toggleGlass = (save = true) => {
             glassMode = !glassMode;
             const txt = document.getElementById('glass-status');
             if(glassMode) {
@@ -684,12 +1070,7 @@
                 txt.innerText = "OFF";
                 txt.style.color = "#666";
             }
-        }
-
-        function getValidAvatar(url, name) {
-            if (url && url.length > 20) return url;
-            const n = name || "User";
-            return `https://ui-avatars.com/api/?name=${encodeURIComponent(n)}&background=222&color=fff&size=64`;
+            if(save) savePreferences();
         }
         function escapeHtml(text) {
             if(!text) return "";
