@@ -5,198 +5,224 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ig0 main</title>
     <style>
-        :root {
-            --bg-glass: rgba(255, 255, 255, 0.25);
-            --text: #000000;
-            --border: rgba(0, 0, 0, 0.08);
-            --secondary: #444444;
-            --overlay: rgba(0, 0, 0, 0.03);
-            --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* Custom Scrollbar */
+        :root { --bg-glass: rgba(255, 255, 255, 0.25); --text: #000000; --border: rgba(0, 0, 0, 0.08); --secondary: #444444; --overlay: rgba(0, 0, 0, 0.03); --smooth-curve: cubic-bezier(0.16, 1, 0.3, 1); --accent-blue: #007aff; }
+        html.inverted { filter: invert(1) hue-rotate(180deg); }
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 10px; }
-
-        body, html {
-            margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #ffffff;
-        }
-
-        #kernel-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;
-            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-            font-size: 11px; color: rgba(0, 0, 0, 0.5); line-height: 1.4; padding: 20px;
-            overflow: hidden; user-select: none; white-space: pre; background: #fff;
-        }
-
-        #glass-wrapper {
-            position: relative; z-index: 10; height: 100vh; width: 100vw; overflow-y: auto;
-            background: var(--bg-glass); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
-            display: flex; flex-direction: column;
-        }
-
+        body, html { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #ffffff; transition: filter 0.3s ease; }
+        #kernel-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace; font-size: 11px; color: rgba(0, 0, 0, 0.5); line-height: 1.4; padding: 20px; overflow: hidden; user-select: none; white-space: pre; background: #fff; }
+        #glass-wrapper { position: relative; z-index: 10; height: 100vh; width: 100vw; overflow-y: auto; background: var(--bg-glass); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: flex; flex-direction: column; }
         nav { padding: 30px 60px; display: flex; justify-content: space-between; align-items: center; }
         .logo { font-weight: 700; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; }
-        .nav-links { display: flex; gap: 20px; }
-        .nav-links button {
-            background: none; border: none; cursor: pointer; color: var(--text);
-            font-size: 12px; font-weight: 500; padding: 0; transition: opacity 0.2s ease;
-        }
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-links button { background: none; border: none; cursor: pointer; color: var(--text); font-size: 12px; font-weight: 500; padding: 0; transition: opacity 0.2s ease; }
         .nav-links button:hover { opacity: 0.5; }
-
         main { flex: 1; padding: 40px 60px; max-width: 500px; margin-right: auto; margin-left: 0; width: 100%; box-sizing: border-box; }
         h1 { font-size: 48px; font-weight: 400; margin-bottom: 10px; letter-spacing: -2px; line-height: 1; }
         p.description { font-size: 14px; color: var(--secondary); margin-bottom: 10px; line-height: 1.6; max-width: 400px; }
         .shoutout { font-size: 13px; font-weight: 600; color: #000; margin-bottom: 60px; display: block; }
-
         .directory-label { font-size: 9px; text-transform: uppercase; letter-spacing: 2px; color: #000; font-weight: 800; margin-bottom: 15px; display: block; opacity: 0.6; }
         .app-list { display: flex; flex-direction: column; gap: 1px; background-color: var(--border); border: 0.5px solid var(--border); }
-        .app-card {
-            background-color: rgba(255, 255, 255, 0.4); padding: 20px; text-decoration: none; color: inherit;
-            display: flex; justify-content: space-between; align-items: center;
-            transition: all 0.4s var(--smooth-curve); cursor: pointer; border: none; text-align: left; width: 100%; font-family: inherit;
-        }
+        .app-card { background-color: rgba(255, 255, 255, 0.4); padding: 20px; text-decoration: none; color: inherit; display: flex; justify-content: space-between; align-items: center; transition: all 0.4s var(--smooth-curve); cursor: pointer; border: none; text-align: left; width: 100%; font-family: inherit; }
         .app-card:hover { background-color: rgba(255, 255, 255, 0.8); padding-left: 24px; }
         .app-info h3 { margin: 0; font-size: 13px; font-weight: 600; }
         .app-info p { margin: 4px 0 0 0; font-size: 11px; color: #555; }
-
-        /* Smooth Popups */
-        .modal-overlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--overlay); backdrop-filter: blur(2px); z-index: 1000;
-            justify-content: center; align-items: center; opacity: 0;
-            transition: opacity 0.4s var(--smooth-curve);
-        }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--overlay); backdrop-filter: blur(2px); z-index: 1000; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.4s var(--smooth-curve); }
         .modal-overlay.active { display: flex; opacity: 1; }
-        .modal {
-            background: #fff; padding: 40px; border: 0.5px solid #000; width: 300px;
-            transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--smooth-curve);
-        }
+        .modal { background: #fff; padding: 40px; border: 0.5px solid #000; width: 300px; transform: scale(0.9) translateY(20px); transition: transform 0.5s var(--smooth-curve); }
         .modal-overlay.active .modal { transform: scale(1) translateY(0); }
-
         footer { padding: 60px; font-size: 10px; color: #000; font-weight: 500; margin-top: auto; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
-        
-        .modal h2 { font-size: 10px; font-weight: 700; margin: 0 0 30px 0; text-transform: uppercase; letter-spacing: 2px; }
-        .modal input { width: 100%; border: none; border-bottom: 0.5px solid #000; padding: 8px 0; margin-bottom: 30px; outline: none; background: transparent; }
-        .btn-black { background: #000; color: #fff; border: none; padding: 12px; font-size: 10px; font-weight: 700; cursor: pointer; letter-spacing: 1px; text-transform: uppercase; width: 100%; }
+        #ygrt-modal .modal { width: 450px; height: 550px; display: flex; flex-direction: column; padding: 0; overflow: hidden; transition: all 0.5s var(--smooth-curve); }
+        #ygrt-modal.fullscreen .modal { width: 100vw; height: 100vh; border-radius: 0; border: none; transform: none; }
+        #ygrt-header { padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #f9f9f9; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .header-btn { cursor: pointer; font-size: 14px; opacity: 0.6; transition: opacity 0.2s; }
+        .header-btn:hover { opacity: 1; }
+        #ygrt-chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fff; scroll-behavior: smooth; }
+        #ygrt-input-area { padding: 15px; border-top: 1px solid var(--border); display: flex; gap: 10px; background: #f9f9f9; }
+        #ygrt-input { flex: 1; border: 1px solid #ddd; padding: 10px 15px; border-radius: 20px; font-size: 13px; outline: none; margin: 0; transition: border-color 0.2s; }
+        #ygrt-input:focus { border-color: #000; }
+        .ygrt-msg { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.5; word-wrap: break-word; position: relative; }
+        .ygrt-msg.ai { align-self: flex-start; background: #f0f0f0; color: #000; border-bottom-left-radius: 2px; }
+        .ygrt-msg.user { align-self: flex-end; background: #000; color: #fff; border-bottom-right-radius: 2px; }
+        .generated-img { width: 100%; border-radius: 8px; margin-top: 5px; cursor: pointer; }
+        .typing-cursor::after { content: ' '; display: inline-block; width: 8px; height: 14px; background: #000; margin-left: 4px; vertical-align: middle; animation: blink-caret 0.75s step-end infinite; }
+        @keyframes blink-caret { from, to { background: transparent; } 50% { background: #000; } }
+        .thinking { display: flex; gap: 4px; padding: 12px; }
+        .dot { width: 6px; height: 6px; background: #888; border-radius: 50%; animation: dot-pulse 1.4s infinite ease-in-out both; }
+        .dot:nth-child(1) { animation-delay: -0.32s; }
+        .dot:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes dot-pulse { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1.0); } }
     </style>
 </head>
 <body>
-
     <div id="kernel-bg"></div>
-
     <div id="glass-wrapper">
         <nav>
             <div class="logo">ig0</div>
             <div class="nav-links">
-                <button onclick="toggleSettings()">Settings</button>
+                <button onclick="toggleInvert()" title="Invert Colors">◑</button>
             </div>
         </nav>
-
         <main>
             <h1>Hello!</h1>
             <p class="description">This is the landing page for all ig0 apps and stuff. Here you can find project experiments.</p>
-            <span class="shoutout">Shout out to my homeslice on steam for helping me beat chamber 18 in portal 🔥</span>
-
+            <span class="shoutout">Shout out to my homeslice ryanp1ays on steam for helping me beat chamber 18 in portal 🔥</span>
             <span class="directory-label">Directory</span>
-            
             <div class="app-list">
                 <a href="ig0_chatv2.html" class="app-card">
-                    <div class="app-info">
-                        <h3>IGHT2 - WorkingStatus=Maybe?</h3>
-                        <p>ig0 messaging platform. Minimalist UI & custom pixels.</p>
-                    </div>
+                    <div class="app-info"><h3>IGHT2</h3><p>ig0 messaging platform. Minimalist UI & custom pixels.</p></div>
                 </a>
-
-                <a href="bugger.html" class="app-card">
-                    <div class="app-info">
-                        <h3>bugger - FIXING IT</h3>
-                        <p>kind of extprint3r</p>
-                    </div>
-                </a>
-
-                <a href="halflife.html" class="app-card">
-                    <div class="app-info">
-                        <h3>Play Half-Life</h3>
-                        <p>Run GoldSrc in browser via Xash3D FWGS.</p>
-                    </div>
-                </a>
-
-                <button class="app-card" onclick="openProxyModal()">
-                    <div class="app-info">
-                        <h3>Cloudflare Proxy</h3>
-                        <p>Custom workers-based traffic routing.</p>
-                    </div>
+                <button class="app-card" onclick="openYgrt()">
+                    <div class="app-info"><h3>Ygrt AI</h3><p>Smart assistant powered by Yogurt technology.</p></div>
                 </button>
+                <a href="bugger.html" class="app-card">
+                    <div class="app-info"><h3>bggr</h3><p>extprint3r clone: Process neutralization and lock utility.</p></div>
+                </a>
+                <a href="halflife.html" class="app-card">
+                    <div class="app-info"><h3>Play Half-Life</h3><p>Run GoldSrc in browser via Xash3D FWGS.</p></div>
+                </a>
             </div>
         </main>
-
         <footer>ig0 stuffs.</footer>
     </div>
 
-    <!-- Settings & Proxy Modals -->
-    <div class="modal-overlay" id="settings-modal" onclick="if(event.target==this) toggleSettings()">
+    <div class="modal-overlay" id="ygrt-modal" onclick="if(event.target==this) closeYgrt()">
         <div class="modal">
-            <h2>Settings</h2>
-            <div class="setting-row">
-                <span>Proxy Engine</span>
-                <select id="engine-select">
-                    <option value="yogurt">Yo-Gurt</option>
-                    <option value="builtin">Mirror</option>
-                </select>
+            <div id="ygrt-header">
+                <span style="font-weight: 700; font-size: 13px;">Ygrt AI</span>
+                <div class="header-actions">
+                    <span class="header-btn" onclick="toggleYgrtFullscreen()" title="Fullscreen">⛶</span>
+                    <span class="header-btn" onclick="closeYgrt()" title="Close">✕</span>
+                </div>
             </div>
-            <button class="btn-black" onclick="toggleSettings()">Save</button>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="proxy-modal" onclick="if(event.target==this) closeProxyModal()">
-        <div class="modal">
-            <h2>Where to?</h2>
-            <input type="text" id="target-url" placeholder="Enter link..." onkeydown="if(event.key==='Enter') launchProxy()">
-            <button class="btn-black" onclick="launchProxy()">Launch</button>
+            <div id="ygrt-chat-box">
+                <div class="ygrt-msg ai">Hello! I am Ygrt AI. Type "imagine [prompt]" to generate images! 🍦</div>
+            </div>
+            <div id="ygrt-input-area">
+                <input type="text" id="ygrt-input" placeholder="Ask Ygrt or 'imagine' something..." onkeydown="if(event.key==='Enter') sendYgrt()">
+                <button class="btn-black" style="width: auto; padding: 8px 16px;" onclick="sendYgrt()">Send</button>
+            </div>
         </div>
     </div>
 
     <script>
         function toggleModal(id, show) {
             const m = document.getElementById(id);
-            if (show) {
-                m.style.display = 'flex';
-                setTimeout(() => m.classList.add('active'), 10);
-            } else {
-                m.classList.remove('active');
-                setTimeout(() => m.style.display = 'none', 400);
-            }
+            if (show) { m.style.display = 'flex'; setTimeout(() => m.classList.add('active'), 10); } 
+            else { m.classList.remove('active'); setTimeout(() => m.style.display = 'none', 400); }
+        }
+        function openYgrt() { toggleModal('ygrt-modal', true); setTimeout(() => document.getElementById('ygrt-input').focus(), 100); }
+        function closeYgrt() { toggleModal('ygrt-modal', false); }
+        function toggleYgrtFullscreen() { document.getElementById('ygrt-modal').classList.toggle('fullscreen'); }
+        function toggleInvert() { document.documentElement.classList.toggle('inverted'); }
+
+        async function typeMessage(element, text) {
+            element.classList.add('typing-cursor');
+            const chatBox = document.getElementById('ygrt-chat-box');
+            let i = 0;
+            return new Promise(resolve => {
+                function nextChar() {
+                    if (i < text.length) {
+                        element.textContent += text.charAt(i); i++;
+                        chatBox.scrollTop = chatBox.scrollHeight;
+                        const speed = 15;
+                        setTimeout(nextChar, speed);
+                    } else { element.classList.remove('typing-cursor'); resolve(); }
+                }
+                nextChar();
+            });
         }
 
-        function toggleSettings() { toggleModal('settings-modal', !document.getElementById('settings-modal').classList.contains('active')); }
-        function openProxyModal() { toggleModal('proxy-modal', true); document.getElementById('target-url').focus(); }
-        function closeProxyModal() { toggleModal('proxy-modal', false); }
+        async function sendYgrt() {
+            const input = document.getElementById('ygrt-input');
+            const text = input.value.trim();
+            if (!text) return;
+            const chatBox = document.getElementById('ygrt-chat-box');
+            
+            const userDiv = document.createElement('div');
+            userDiv.className = 'ygrt-msg user';
+            userDiv.textContent = text;
+            chatBox.appendChild(userDiv);
+            input.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
 
-        const kernelLines = ["[ 0.000] Linux v6.1-ig0", "[ 0.005] pci 0000:00:00.0", "[ 0.412] ig0_neutralizer: init", "[ 0.912] hostname: ig0-sovereign", "[ 1.002] iBoss: intercepting...", "[ 1.124] workers: mounting...", "[ 1.556] yield to ig0_main", "[ 1.678] kernel: memory free"];
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'ygrt-msg ai thinking';
+            thinkingDiv.innerHTML = '<div class="dot"></div><div class="dot"></div><div class="dot"></div>';
+            chatBox.appendChild(thinkingDiv);
+
+            // CHECK FOR IMAGE GENERATION KEYWORD
+            if (text.toLowerCase().startsWith('imagine ')) {
+                const prompt = text.replace(/imagine /i, '');
+                const apiKey = ""; // Set by environment
+                
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/imagen-4.0-generate-001:predict?key=${apiKey}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ instances: { prompt: prompt }, parameters: { sampleCount: 1 } })
+                    });
+                    
+                    const result = await response.json();
+                    chatBox.removeChild(thinkingDiv);
+                    
+                    if (result.predictions && result.predictions[0]) {
+                        const aiDiv = document.createElement('div');
+                        aiDiv.className = 'ygrt-msg ai';
+                        const img = document.createElement('img');
+                        img.className = 'generated-img';
+                        img.src = `data:image/png;base64,${result.predictions[0].bytesBase64Encoded}`;
+                        aiDiv.appendChild(img);
+                        chatBox.appendChild(aiDiv);
+                    } else {
+                        throw new Error("Generation failed");
+                    }
+                } catch (e) {
+                    if (chatBox.contains(thinkingDiv)) chatBox.removeChild(thinkingDiv);
+                    const err = document.createElement('div');
+                    err.className = 'ygrt-msg ai';
+                    err.textContent = "Image generation failed. Please try again.";
+                    chatBox.appendChild(err);
+                }
+                chatBox.scrollTop = chatBox.scrollHeight;
+                return;
+            }
+
+            // Standard Groq Text Chat
+            const API_KEY = "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";
+            const ORG_ID = "org_01keg04x3kef3v8v1mzew41nae";
+            const MODEL = "openai/gpt-oss-120b"; 
+
+            try {
+                const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: { "Authorization": `Bearer ${API_KEY}`, "Groq-Organization": ORG_ID, "Content-Type": "application/json" },
+                    body: JSON.stringify({ model: MODEL, messages: [{ role: "user", content: text }], temperature: 0.7 })
+                });
+                const data = await response.json();
+                chatBox.removeChild(thinkingDiv);
+                const aiDiv = document.createElement('div');
+                aiDiv.className = 'ygrt-msg ai';
+                chatBox.appendChild(aiDiv);
+                await typeMessage(aiDiv, data.choices[0]?.message?.content || "Ygrt is sleepy.");
+            } catch (error) {
+                if (chatBox.contains(thinkingDiv)) chatBox.removeChild(thinkingDiv);
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        const kernelLines = ["[ 0.000] Linux v6.1-ig0", "[ 0.912] hostname: ig0-sovereign", "[ 1.002] iBoss: intercepting...", "[ 2.041] yogurt_engine: warm start"];
         const bg = document.getElementById('kernel-bg');
-        let currentIdx = 0;
         function addLine() {
             const line = document.createElement('div');
-            line.textContent = kernelLines[currentIdx % kernelLines.length];
+            line.textContent = kernelLines[Math.floor(Math.random()*kernelLines.length)];
             bg.appendChild(line);
-            if (bg.childNodes.length > 80) bg.removeChild(bg.firstChild);
-            currentIdx++;
-            bg.scrollTop = bg.scrollHeight;
-            setTimeout(addLine, Math.random() * 200 + 50);
+            if (bg.childNodes.length > 50) bg.removeChild(bg.firstChild);
+            setTimeout(addLine, 400);
         }
         addLine();
-
-        function launchProxy() {
-            let t = document.getElementById('target-url').value;
-            if (!t) return;
-            if (!t.startsWith('http')) t = 'https://' + t;
-            window.location.href = `https://yo-gurt.uareawesomesauce.workers.dev/?target=${encodeURIComponent(t)}`;
-        }
     </script>
 </body>
-
 </html>
